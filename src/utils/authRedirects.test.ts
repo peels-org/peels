@@ -16,10 +16,6 @@ test("normaliseNextPath accepts same-app relative paths", () => {
 
 test("normaliseNextPath accepts absolute peels.org app URLs", () => {
   assert.equal(
-    normaliseNextPath("https://peels.org/listings/QE4QxdJ4y5YE", "/map"),
-    "/listings/QE4QxdJ4y5YE"
-  );
-  assert.equal(
     normaliseNextPath("https://www.peels.org/listings/QE4QxdJ4y5YE", "/map"),
     "/listings/QE4QxdJ4y5YE"
   );

@@ -7,7 +7,7 @@ Peels now serves the same production app from both `https://www.peels.app` and
 The hosting work is already done:
 
 - The temporary `peels-org` Cloudflare Pages app has been removed.
-- `peels.org` and `www.peels.org` have been added to the main Vercel app.
+- `www.peels.org` has been added to the main Vercel app.
 - Cloudflare allow-lists for MapTiler, Turnstile, and Protomaps have been
   updated so the app works on `.org`.
 - Auth, listings, images, maps, and messaging have been manually verified on
@@ -34,8 +34,7 @@ still useful because it makes dual-hosting intentional and durable:
   sitemap URLs, robots sitemap references, JSON-LD, RSS, and social metadata
   stay on `.app`.
 - `src/config/appOrigins.ts` lists the allowed app origins for auth-safe
-  redirects: `https://www.peels.app`, `https://peels.org`, and
-  `https://www.peels.org`.
+  redirects: `https://www.peels.app` and `https://www.peels.org`.
 - Supabase auth email links accept only those origins. Unknown origins fall
   back to `https://www.peels.app`.
 - Edge email templates use `PEELS_PUBLIC_SITE_URL` for app links. Leave it set
@@ -73,7 +72,8 @@ building useful search and reputation signals during the dual-hosting phase.
 Done:
 
 1. `www.peels.org` has been added to the main Vercel app.
-2. Apex `peels.org` has been added to the main Vercel app.
+2. Apex `peels.org` is not an app origin; it should redirect to
+   `https://www.peels.org` if it is used at all.
 3. The temporary `peels-org` Cloudflare Pages deployment has been removed.
 4. MapTiler, Turnstile, and Protomaps have been updated to allow `.org`.
 
