@@ -3,6 +3,7 @@ import EmailButton from "./components/EmailButton.tsx";
 import EmailParagraph from "./components/EmailParagraph.tsx";
 import EmailTextEmphasized from "./components/EmailTextEmphasized.tsx";
 import EmailLink from "./components/EmailLink.tsx";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 import * as React from "npm:react";
 
 interface NewFeatureEmailProps {
@@ -11,7 +12,7 @@ interface NewFeatureEmailProps {
 
 // An email template for one-off announcements to users
 export const NewFeatureEmail = ({ recipientName }: NewFeatureEmailProps) => {
-  const siteUrl = "https://www.peels.app";
+  const siteUrl = getPublicSiteUrl();
   return (
     <EmailBody
       previewText={`We’ve just added a newsletter option to Peels. Here’s how to opt-in if you’d like to get it. Just head to your Profile and edit the ‘Newsletter’ option.`}

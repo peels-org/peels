@@ -7,7 +7,7 @@ import {
 } from "../_shared/newsletter.ts";
 import { renderEmailHtml, renderEmailText } from "../_shared/email-html.ts";
 
-const newsletterEmailAddress = Deno.env.get("NEWSLETTER_EMAIL_ADDRESS");
+const generalEmailAddress = Deno.env.get("GENERAL_EMAIL_ADDRESS");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const resend = new Resend(RESEND_API_KEY);
 
@@ -15,7 +15,7 @@ const resend = new Resend(RESEND_API_KEY);
 // who don't have a Peels account, such as council or external waste educators
 const handler = async (_request: Request): Promise<Response> => {
   try {
-    if (!RESEND_API_KEY || !newsletterEmailAddress) {
+    if (!RESEND_API_KEY || !generalEmailAddress) {
       throw new Error("Missing required environment variables");
     }
 
@@ -42,7 +42,7 @@ const handler = async (_request: Request): Promise<Response> => {
       const { data: broadcast, error: broadcastError } =
         await resend.broadcasts.create({
           audienceId,
-          from: `Danny from Peels <${newsletterEmailAddress}>`,
+          from: `Danny from Peels <${generalEmailAddress}>`,
           subject: getNewsletterEmailSubject(locale),
           html,
           text,

@@ -3,6 +3,7 @@ import {
   resolveSupportedLocale,
   type SupportedLocale,
 } from "./i18n.ts";
+import { getPublicSiteUrl } from "./app-origin.ts";
 
 type LocalisedIssueDetails = {
   title: string;
@@ -213,7 +214,7 @@ export const getNewsletterEmailSubject = (locale: SupportedLocale) => {
 
 export const getNewsletterIssueUrl = (locale?: SupportedLocale) => {
   const issueUrl = new URL(
-    `https://www.peels.app/newsletter/${currentIssue.slug}`
+    `${getPublicSiteUrl()}/newsletter/${currentIssue.slug}`
   );
 
   if (locale && locale !== defaultEmailLocale) {

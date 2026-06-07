@@ -10,6 +10,7 @@ import {
   getNewsletterIssueUrl,
 } from "../_shared/newsletter.ts";
 import type { SupportedLocale } from "../_shared/i18n.ts";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 
 interface NewsletterIssueEmailProps {
   locale: SupportedLocale;
@@ -40,7 +41,7 @@ export const NewsletterIssueEmail = ({
   const copy = getNewsletterEmailCopy(locale);
   const issue = getCurrentNewsletterIssue(locale);
   const issueUrl = getNewsletterIssueUrl(locale);
-  const profileUrl = "https://www.peels.app/profile";
+  const profileUrl = `${getPublicSiteUrl()}/profile`;
 
   return (
     <EmailBody

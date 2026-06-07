@@ -3,11 +3,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend";
 import { NewFeatureEmail } from "../_templates/new-feature-email.tsx";
 import { renderEmailHtml, renderEmailText } from "../_shared/email-html.ts";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 
 // Look up required env variables and API keys from Supabase secrets
 const generalEmailAddress = Deno.env.get("GENERAL_EMAIL_ADDRESS");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const resend = new Resend(RESEND_API_KEY);
+const publicSiteUrl = getPublicSiteUrl();
 
 const handler = async (_request: Request): Promise<Response> => {
   try {
@@ -87,7 +89,7 @@ const handler = async (_request: Request): Promise<Response> => {
           html: await renderEmailHtml(email),
           text: await renderEmailText(email),
           headers: {
-            "List-Unsubscribe": "<https://www.peels.app/profile>",
+            "List-Unsubscribe": `<${publicSiteUrl}/profile>`,
             "List-Unsubscribe-Post": "List-Unsubscribe=One-Click", // Required for deliverability, even if irrelevant
           },
         });

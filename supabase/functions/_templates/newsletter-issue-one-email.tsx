@@ -8,6 +8,7 @@ import EmailCaption from "./components/EmailCaption.tsx";
 import EmailTextEmphasized from "./components/EmailTextEmphasized.tsx";
 import EmailLink from "./components/EmailLink.tsx";
 import EmailHr from "./components/EmailHr.tsx";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 import * as React from "npm:react";
 
 interface NewsletterIssueOneEmailProps {
@@ -15,7 +16,7 @@ interface NewsletterIssueOneEmailProps {
   externalAudience: boolean;
 }
 
-const dwEmailAddress = Deno.env.get("DW_EMAIL_ADDRESS");
+const replyEmailAddress = Deno.env.get("GENERAL_EMAIL_ADDRESS");
 const staticAssetUrl = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/static`;
 const issueSlug = "celebrating-the-first-few-months";
 
@@ -25,7 +26,7 @@ export const NewsletterIssueOneEmail = ({
   recipientName = "there",
   externalAudience,
 }: NewsletterIssueOneEmailProps) => {
-  const siteUrl = "https://www.peels.app";
+  const siteUrl = getPublicSiteUrl();
   const repoUrl = "https://github.com/dnywh/peels";
   const issueAssetUrl = `${staticAssetUrl}/newsletter/1`;
   return (
@@ -252,7 +253,7 @@ export const NewsletterIssueOneEmail = ({
         <EmailTextEmphasized>
           Please{" "}
           <EmailLink
-            href={`mailto:${dwEmailAddress}?subject=Response to Peels Newsletter Issue 1`}
+            href={`mailto:${replyEmailAddress}?subject=Response to Peels Newsletter Issue 1`}
           >
             reach out
           </EmailLink>{" "}
