@@ -1,3 +1,8 @@
+import {
+  defaultAppOrigin,
+  getSupportedAppOrigin,
+} from "../_shared/app-origin.ts";
+
 type AuthEmailType =
   | "signup"
   | "invite"
@@ -11,16 +16,25 @@ const normalizeNextPath = (
   nextPath: string | null | undefined,
   fallbackPath: string
 ) => {
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
+  if (!nextPath || nextPath.startsWith("//")) {
     return fallbackPath;
   }
 
   try {
-    const parsedPath = new URL(nextPath, "https://www.peels.app");
-    if (parsedPath.origin !== "https://www.peels.app") {
+    const parsedPath = nextPath.startsWith("/")
+      ? new URL(nextPath, defaultAppOrigin)
+      : new URL(nextPath);
+
+    if (getSupportedAppOrigin(parsedPath.origin) !== parsedPath.origin) {
       return fallbackPath;
     }
-    return `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+
+    const normalizedPath = `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
+      return fallbackPath;
+    }
+
+    return normalizedPath;
   } catch (_error) {
     return fallbackPath;
   }
@@ -55,13 +69,13 @@ export const buildAuthConfirmUrl = ({
       : "magiclink";
 
   const fallbackNextPath = getDefaultNextPathByType(safeAction);
-  let appOrigin = "https://www.peels.app";
+  let appOrigin = defaultAppOrigin;
   let nextPath = fallbackNextPath;
 
   if (redirectTo) {
     try {
       const redirectUrl = new URL(redirectTo);
-      appOrigin = redirectUrl.origin;
+      appOrigin = getSupportedAppOrigin(redirectUrl.origin);
       const candidateNextPath =
         redirectUrl.searchParams.get("next") ??
         redirectUrl.searchParams.get("redirect_to");

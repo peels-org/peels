@@ -6,6 +6,7 @@ import EmailParagraph from "./components/EmailParagraph.tsx";
 import EmailLink from "./components/EmailLink.tsx";
 import { assignments } from "../_shared/tokens.js";
 import { getChatEmailCopy, type SupportedLocale } from "../_shared/i18n.ts";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 import * as React from "npm:react";
 
 interface NewChatMessageEmailProps {
@@ -41,7 +42,7 @@ export const NewChatMessageEmail = ({
   listingType,
   ownerHasMultipleNonResidentialListings,
 }: NewChatMessageEmailProps) => {
-  const siteUrl = "https://www.peels.app";
+  const siteUrl = getPublicSiteUrl();
   const copy = getChatEmailCopy(locale);
   const listingContext =
     ownerHasMultipleNonResidentialListings && listingName

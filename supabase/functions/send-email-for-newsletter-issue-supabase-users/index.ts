@@ -8,11 +8,13 @@ import {
 } from "../_shared/newsletter.ts";
 import { isMissingPreferredLocaleColumn } from "../_shared/postgrest.ts";
 import { renderEmailHtml, renderEmailText } from "../_shared/email-html.ts";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 
 // Look up required API keys from Supabase secrets
-const newsletterEmailAddress = Deno.env.get("NEWSLETTER_EMAIL_ADDRESS");
+const generalEmailAddress = Deno.env.get("GENERAL_EMAIL_ADDRESS");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const resend = new Resend(RESEND_API_KEY);
+const publicSiteUrl = getPublicSiteUrl();
 
 // TEST MODE: Set to true to send emails to test address and skip database updates
 const TEST_MODE = false;
@@ -28,7 +30,7 @@ const handler = async (_request: Request): Promise<Response> => {
       !supabaseUrl ||
       !supabaseServiceKey ||
       !RESEND_API_KEY ||
-      !newsletterEmailAddress
+      !generalEmailAddress
     ) {
       throw new Error("Missing required environment variables");
     }
@@ -140,13 +142,13 @@ const handler = async (_request: Request): Promise<Response> => {
         }
 
         const { data: _data, error } = await resend.emails.send({
-          from: `Danny from Peels <${newsletterEmailAddress}>`,
+          from: `Danny from Peels <${generalEmailAddress}>`,
           to: [recipientEmail],
           subject: getNewsletterEmailSubject(locale),
           html,
           text,
           headers: {
-            "List-Unsubscribe": "<https://www.peels.app/profile>",
+            "List-Unsubscribe": `<${publicSiteUrl}/profile>`,
             "List-Unsubscribe-Post": "List-Unsubscribe=One-Click", // Required for deliverability, even if irrelevant
           },
         });

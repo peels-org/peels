@@ -1,4 +1,8 @@
-import { defaultLocale, type Locale, normaliseLocale } from "@/i18n/config";
+import {
+  defaultAppOrigin,
+  isSupportedAppOrigin,
+} from "../config/appOrigins.ts";
+import { defaultLocale, type Locale, normaliseLocale } from "../i18n/config.ts";
 
 export const SUPABASE_EMAIL_AUTH_TYPES = new Set([
   "signup",
@@ -30,21 +34,25 @@ export const normaliseNextPath = (
   candidatePath: string | null | undefined,
   fallbackPath: string
 ) => {
-  if (
-    !candidatePath ||
-    !candidatePath.startsWith("/") ||
-    candidatePath.startsWith("//")
-  ) {
+  if (!candidatePath || candidatePath.startsWith("//")) {
     return fallbackPath;
   }
 
   try {
-    const parsedPath = new URL(candidatePath, "https://www.peels.app");
-    if (parsedPath.origin !== "https://www.peels.app") {
+    const parsedPath = candidatePath.startsWith("/")
+      ? new URL(candidatePath, defaultAppOrigin)
+      : new URL(candidatePath);
+
+    if (!isSupportedAppOrigin(parsedPath.origin)) {
       return fallbackPath;
     }
 
-    return `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    const normalisedPath = `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    if (!normalisedPath.startsWith("/") || normalisedPath.startsWith("//")) {
+      return fallbackPath;
+    }
+
+    return normalisedPath;
   } catch (_error) {
     return fallbackPath;
   }
@@ -52,7 +60,7 @@ export const normaliseNextPath = (
 
 export const appendSuccessParam = (path: string, successValue: string) => {
   const normalisedPath = normaliseNextPath(path, "/profile");
-  const url = new URL(normalisedPath, "https://www.peels.app");
+  const url = new URL(normalisedPath, defaultAppOrigin);
   url.searchParams.set("success", successValue);
   return `${url.pathname}${url.search}${url.hash}`;
 };
@@ -74,7 +82,7 @@ export const getLocaleFromSearchParams = (
 
 export const appendLocaleParam = (path: string, locale: Locale) => {
   const normalisedPath = normaliseNextPath(path, "/profile");
-  const url = new URL(normalisedPath, "https://www.peels.app");
+  const url = new URL(normalisedPath, defaultAppOrigin);
   url.searchParams.set("locale", locale);
   return `${url.pathname}${url.search}${url.hash}`;
 };

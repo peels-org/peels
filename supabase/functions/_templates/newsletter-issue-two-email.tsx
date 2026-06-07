@@ -8,6 +8,7 @@ import EmailLink from "./components/EmailLink.tsx";
 import EmailHr from "./components/EmailHr.tsx";
 import EmailUnorderedList from "./components/EmailUnorderedList.tsx";
 import EmailListItem from "./components/EmailListItem.tsx";
+import { getPublicSiteUrl } from "../_shared/app-origin.ts";
 import * as React from "npm:react";
 
 interface NewsletterIssueTwoEmailProps {
@@ -15,7 +16,7 @@ interface NewsletterIssueTwoEmailProps {
   externalAudience: boolean;
 }
 
-const dwEmailAddress = Deno.env.get("DW_EMAIL_ADDRESS");
+const replyEmailAddress = Deno.env.get("GENERAL_EMAIL_ADDRESS");
 const staticAssetUrl = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/static`;
 const issueSlug = "beginning-to-look-like-compost";
 
@@ -25,7 +26,7 @@ export const NewsletterIssueTwoEmail = ({
   recipientName = "there",
   externalAudience,
 }: NewsletterIssueTwoEmailProps) => {
-  const siteUrl = "https://www.peels.app";
+  const siteUrl = getPublicSiteUrl();
   const repoUrl = "https://github.com/dnywh/peels";
   const issueAssetUrl = `${staticAssetUrl}/newsletter/2`;
   return (
@@ -194,7 +195,7 @@ export const NewsletterIssueTwoEmail = ({
       <EmailParagraph>
         Are you a host too?{" "}
         <EmailLink
-          href={`mailto:${dwEmailAddress}?subject=Response to Peels Newsletter Issue 2&body=Hi Danny, I’d like to be featured in the Peels newsletter.`}
+          href={`mailto:${replyEmailAddress}?subject=Response to Peels Newsletter Issue 2&body=Hi Danny, I’d like to be featured in the Peels newsletter.`}
         >
           Let me know
         </EmailLink>{" "}
@@ -206,7 +207,7 @@ export const NewsletterIssueTwoEmail = ({
       <EmailParagraph>
         Many would-be compost donors and hosts simply haven’t heard about Peels.{" "}
         <EmailLink
-          href={`mailto:${dwEmailAddress}?subject=Response to Peels Newsletter Issue 2`}
+          href={`mailto:${replyEmailAddress}?subject=Response to Peels Newsletter Issue 2`}
         >
           Reach out
         </EmailLink>{" "}
@@ -234,7 +235,7 @@ export const NewsletterIssueTwoEmail = ({
       <EmailParagraph>
         Got ideas or feedback?{" "}
         <EmailLink
-          href={`mailto:${dwEmailAddress}?subject=Response to Peels Newsletter Issue 2`}
+          href={`mailto:${replyEmailAddress}?subject=Response to Peels Newsletter Issue 2`}
         >
           Drop me a line
         </EmailLink>
