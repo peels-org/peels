@@ -34,7 +34,8 @@ still useful because it makes dual-hosting intentional and durable:
   sitemap URLs, robots sitemap references, JSON-LD, RSS, and social metadata
   stay on `.app`.
 - `src/config/appOrigins.ts` lists the allowed app origins for auth-safe
-  redirects: `https://www.peels.app` and `https://www.peels.org`.
+  redirects: `https://www.peels.app`, `https://peels.org`, and
+  `https://www.peels.org`.
 - Supabase auth email links accept only those origins. Unknown origins fall
   back to `https://www.peels.app`.
 - Edge email templates use `PEELS_PUBLIC_SITE_URL` for app links. Leave it set

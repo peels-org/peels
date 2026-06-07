@@ -2,6 +2,7 @@ export const defaultAppOrigin = "https://www.peels.app";
 
 const supportedAppOrigins = new Set([
   defaultAppOrigin,
+  "https://peels.org",
   "https://www.peels.org",
 ]);
 
