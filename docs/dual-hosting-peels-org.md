@@ -1,9 +1,32 @@
 # Dual-hosting peels.org
 
-Peels currently serves the app from `https://www.peels.app`. During the
-dual-hosting phase, `https://www.peels.org` should serve the same app without
-redirecting either domain to the other. Keep `peels.app` as the canonical SEO
-origin until the later canonical migration.
+Peels now serves the same production app from both `https://www.peels.app` and
+`https://www.peels.org`, without redirecting either domain to the other. Keep
+`peels.app` as the canonical SEO origin until the later canonical migration.
+
+The hosting work is already done:
+
+- The temporary `peels-org` Cloudflare Pages app has been removed.
+- `peels.org` and `www.peels.org` have been added to the main Vercel app.
+- Cloudflare allow-lists for MapTiler, Turnstile, and Protomaps have been
+  updated so the app works on `.org`.
+- Auth, listings, images, maps, and messaging have been manually verified on
+  `.org`.
+
+## Why this PR still matters
+
+The live app can already work on `.org` because the browser app mostly uses the
+current request origin and Supabase sessions are stored per host. This PR is
+still useful because it makes dual-hosting intentional and durable:
+
+- It removes the obsolete static `peels-org` app from the repo.
+- It documents the current production state and the remaining manual steps.
+- It allow-lists `.org` in app redirect handling, instead of relying on
+  incidental relative redirect behaviour.
+- It makes Supabase auth email link construction accept both Peels origins
+  while still rejecting arbitrary external origins.
+- It consolidates Supabase email sending onto one configured sender address,
+  matching the decision to avoid paying for multiple Resend sending domains.
 
 ## App behaviour
 
@@ -21,15 +44,45 @@ origin until the later canonical migration.
   separate Resend sender domains for transactional, newsletter, or personal
   reply flows.
 
-## Hosted setup checklist
+## SEO during dual-hosting
 
-1. Add `www.peels.org` to the main app hosting project.
-2. Point Cloudflare DNS for `www.peels.org` at that app host.
-3. Either add apex `peels.org` to the same app or configure an apex redirect to
-   `https://www.peels.org`.
-4. Disconnect the temporary `peels-org` Cloudflare Pages project from
-   `peels.org` after the main app is serving the domain.
-5. Do not redirect `peels.app` to `peels.org` in this phase.
+No extra `<meta name="robots" content="index, follow">` tag is needed for
+normal pages. Search engines treat pages as indexable and followable by default
+unless a page says otherwise. The app only emits `noindex, follow` metadata for
+explicitly non-indexable surfaces.
+
+Canonical URLs are emitted through Next.js metadata as `<link rel="canonical"
+...>`, not as a `meta` tag. During this phase, those canonical links should
+continue to point at `.app` because `siteConfig.url` remains
+`https://www.peels.app`.
+
+For now, this is the intended SEO shape:
+
+- `.app` and `.org` both render the app.
+- `.app` remains the canonical origin in page metadata, sitemap, robots sitemap
+  URL, JSON-LD, RSS, Open Graph URLs, and newsletter content.
+- `.org` can build browser trust, partner familiarity, and allow-list history
+  without asking search engines to treat it as the primary origin yet.
+
+Do not add a global `noindex` rule to `.org`. That would prevent `.org` from
+building useful search and reputation signals during the dual-hosting phase.
+
+## Hosted setup status
+
+Done:
+
+1. `www.peels.org` has been added to the main Vercel app.
+2. Apex `peels.org` has been added to the main Vercel app.
+3. The temporary `peels-org` Cloudflare Pages deployment has been removed.
+4. MapTiler, Turnstile, and Protomaps have been updated to allow `.org`.
+
+Still intentional:
+
+1. Do not redirect `peels.app` to `peels.org` in this phase.
+2. Keep `siteConfig.url` on `https://www.peels.app` until the canonical
+   migration phase.
+3. Keep partner links to `.app` in place, but new partner outreach can mention
+   `.org` as an additional working URL.
 
 ## Supabase auth checklist
 
@@ -45,6 +98,12 @@ Configuration:
 3. Redeploy `send-email-for-auth-action` after changing Edge Function code.
 
 Exact production redirect URLs are preferred over broad wildcards.
+
+The app may appear to work before these Supabase settings are changed because
+some auth flows use same-origin relative redirects or already-permitted URLs.
+Still add the exact `.org` URLs before treating the setup as complete,
+especially for email confirmation, password reset, magic-link, and future auth
+template changes.
 
 ## Email setup checklist
 
@@ -86,3 +145,11 @@ At the clean email cutover:
 - `.org` pages emit canonical URLs pointing to `.app`.
 - UTM query parameters are captured on whichever domain receives the first
   visit.
+
+Already manually verified:
+
+- Existing accounts can sign in on `.org`.
+- New accounts can sign up on `.org`.
+- A browser can be signed in to one account on `.org` and another on `.app`;
+  this is expected because sessions are host-specific.
+- Images, messages, listings, maps, and app data load on `.org`.
