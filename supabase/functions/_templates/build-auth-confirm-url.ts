@@ -16,7 +16,7 @@ const normalizeNextPath = (
   nextPath: string | null | undefined,
   fallbackPath: string
 ) => {
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
+  if (!nextPath || nextPath.startsWith("//")) {
     return fallbackPath;
   }
 
@@ -28,7 +28,13 @@ const normalizeNextPath = (
     if (getSupportedAppOrigin(parsedPath.origin) !== parsedPath.origin) {
       return fallbackPath;
     }
-    return `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+
+    const normalizedPath = `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
+      return fallbackPath;
+    }
+
+    return normalizedPath;
   } catch (_error) {
     return fallbackPath;
   }

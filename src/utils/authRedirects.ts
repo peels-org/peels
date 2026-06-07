@@ -47,7 +47,12 @@ export const normaliseNextPath = (
       return fallbackPath;
     }
 
-    return `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    const normalisedPath = `${parsedPath.pathname}${parsedPath.search}${parsedPath.hash}`;
+    if (!normalisedPath.startsWith("/") || normalisedPath.startsWith("//")) {
+      return fallbackPath;
+    }
+
+    return normalisedPath;
   } catch (_error) {
     return fallbackPath;
   }

@@ -28,6 +28,10 @@ test("normaliseNextPath rejects external and malformed redirect targets", () => 
   );
   assert.equal(normaliseNextPath("profile", "/map"), "/map");
   assert.equal(normaliseNextPath("//example.com/profile", "/map"), "/map");
+  assert.equal(
+    normaliseNextPath("https://www.peels.org//example.com/profile", "/map"),
+    "/map"
+  );
 });
 
 test("appendSuccessParam keeps redirects path-only", () => {
