@@ -73,6 +73,25 @@ async function readStoredMapViewCookie(page: Page) {
     : null;
 }
 
+async function mockMapTilerIpCountry(page: Page, countryCode: string) {
+  await page.route(/api\.maptiler\.com\/geolocation/i, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        country_code: countryCode,
+        latitude: 19.4326,
+        longitude: -99.1332,
+      }),
+    });
+  });
+}
+
+function parseNumberParam(url: URL, name: string) {
+  const value = url.searchParams.get(name);
+  return value ? value.split(",").map(Number) : null;
+}
+
 function roundCookieExpectation(value: number) {
   const roundedValue = Number(value.toFixed(2));
   return Object.is(roundedValue, -0) ? 0 : roundedValue;
@@ -322,6 +341,129 @@ test("map search palette flies to a picked geocoding result", async ({
       { timeout: 5000 }
     )
     .toBeCloseTo(-33.8985, 1);
+});
+
+test("map search is bounded by the current map instead of IP country", async ({
+  page,
+}) => {
+  const geocodingRequests: URL[] = [];
+  const feature = createMockGeocodingFeature({
+    text: "Newtown",
+    placeName: "Newtown, New South Wales, Australia",
+    center: [151.1781, -33.8985],
+  });
+
+  await seedStoredMapView(page, INNER_WEST_MAP_VIEW);
+  await mockMapTilerIpCountry(page, "MX");
+  await page.route("**/geocoding/**", async (route) => {
+    geocodingRequests.push(new URL(route.request().url()));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        type: "FeatureCollection",
+        query: [],
+        features: [feature],
+        attribution: "Mock MapTiler geocoding",
+      }),
+    });
+  });
+
+  try {
+    await page.goto("/map", { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByTestId("map-view").locator(".maplibregl-canvas")
+    ).toBeVisible({
+      timeout: 10_000,
+    });
+
+    await page.getByTestId("map-control-search").click();
+    await page.getByTestId("geocoding-search-input").fill("Newtown");
+    await expect(page.getByRole("option", { name: /Newtown/ })).toBeVisible();
+
+    expect(geocodingRequests).toHaveLength(1);
+    const [boundedRequest] = geocodingRequests;
+    expect(boundedRequest.searchParams.get("country")).toBeNull();
+    expect(boundedRequest.searchParams.get("proximity")).not.toBe("ip");
+
+    const proximity = parseNumberParam(boundedRequest, "proximity");
+    expect(proximity).not.toBeNull();
+    expect(proximity?.[0]).toBeCloseTo(INNER_WEST_MAP_VIEW.longitude, 1);
+    expect(proximity?.[1]).toBeCloseTo(INNER_WEST_MAP_VIEW.latitude, 1);
+
+    const bbox = parseNumberParam(boundedRequest, "bbox");
+    expect(bbox).not.toBeNull();
+    if (!bbox) throw new Error("Expected map search request to include bbox");
+    const [west, south, east, north] = bbox;
+    expect(west).toBeLessThan(INNER_WEST_MAP_VIEW.longitude);
+    expect(east).toBeGreaterThan(INNER_WEST_MAP_VIEW.longitude);
+    expect(south).toBeLessThan(INNER_WEST_MAP_VIEW.latitude);
+    expect(north).toBeGreaterThan(INNER_WEST_MAP_VIEW.latitude);
+  } finally {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  }
+});
+
+test("map search retries without bounds when the bounded search is empty", async ({
+  page,
+}) => {
+  const geocodingRequests: URL[] = [];
+  const fallbackFeature = createMockGeocodingFeature({
+    id: "place.fallback",
+    text: "Melbourne",
+    placeName: "Melbourne, Victoria, Australia",
+    center: [144.9631, -37.8136],
+  });
+
+  await seedStoredMapView(page, INNER_WEST_MAP_VIEW);
+  await mockMapTilerIpCountry(page, "MX");
+  await page.route("**/geocoding/**", async (route) => {
+    const url = new URL(route.request().url());
+    geocodingRequests.push(url);
+    const isBoundedRequest = url.searchParams.has("bbox");
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        type: "FeatureCollection",
+        query: [],
+        features: isBoundedRequest ? [] : [fallbackFeature],
+        attribution: "Mock MapTiler geocoding",
+      }),
+    });
+  });
+
+  try {
+    await page.goto("/map", { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByTestId("map-view").locator(".maplibregl-canvas")
+    ).toBeVisible({
+      timeout: 10_000,
+    });
+
+    await page.getByTestId("map-control-search").click();
+    await page.getByTestId("geocoding-search-input").fill("Melbourne");
+    await page.getByRole("option", { name: /Melbourne/ }).click();
+
+    expect(geocodingRequests).toHaveLength(2);
+    expect(geocodingRequests[0].searchParams.has("bbox")).toBe(true);
+    expect(geocodingRequests[1].searchParams.has("bbox")).toBe(false);
+    expect(geocodingRequests[1].searchParams.get("country")).toBeNull();
+    expect(geocodingRequests[1].searchParams.get("proximity")).not.toBe("ip");
+
+    await expect
+      .poll(
+        async () => {
+          const storedView = await readStoredMapView(page);
+          return storedView?.latitude ?? null;
+        },
+        { timeout: 5000 }
+      )
+      .toBeCloseTo(-37.8136, 1);
+  } finally {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  }
 });
 
 test("map pins minify at country zoom, then grow and animate selection", async ({
