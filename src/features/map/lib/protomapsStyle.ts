@@ -47,7 +47,7 @@ export function createProtomapsStyle({
         maxzoom: MAP_MAX_ZOOM,
         tiles: [tileUrl],
         attribution:
-          '<a href="https://protomaps.com">Protomaps</a> • <a href="https://osm.org/copyright">OpenStreetMap</a>',
+          '<a href="https://protomaps.com" target="_blank" rel="noopener noreferrer">Protomaps</a> • <a href="https://osm.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
       },
     },
     layers: layers("protomaps", namedFlavor(flavorName), {
