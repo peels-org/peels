@@ -68,7 +68,7 @@ export default function MapPageClient({
     closeListing,
   } = useMapListingUrl({ user, initialListingSlug, initialListing });
 
-  const { initialCoordinates, countryCode } = useIpInitialLocation({
+  const { initialCoordinates } = useIpInitialLocation({
     initialCoordinates: initialMapCoordinates,
     skip: Boolean(initialListingSlug),
   });
@@ -140,7 +140,6 @@ export default function MapPageClient({
             onMapClick={handleMapClick}
             onMarkerClick={handleMarkerClick}
             isDesktop={isDesktop}
-            countryCode={countryCode}
           />
 
           <MapListingDrawerPanel

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   geocoding,
+  type BBox,
   type GeocodingFeature,
   type GeocodingPlaceType,
   type Position,
@@ -22,6 +23,7 @@ type GeocodingSearchStatus = "idle" | "loading" | "success" | "error";
 
 type UseGeocodingSearchOptions = {
   query: string;
+  bbox?: BBox;
   countryCode?: string | null;
   proximity?: Position | "ip";
   enabled?: boolean;
@@ -32,6 +34,7 @@ type UseGeocodingSearchOptions = {
 
 export function useGeocodingSearch({
   query,
+  bbox,
   countryCode,
   proximity,
   enabled = true,
@@ -74,11 +77,32 @@ export function useGeocodingSearch({
         .forward(trimmedQuery, {
           apiKey,
           autocomplete: true,
+          bbox,
           country: countryCode ? [countryCode] : undefined,
           fuzzyMatch: true,
           limit,
           proximity,
           types: MAP_GEOCODING_TYPES,
+        })
+        .then(async (result) => {
+          if (
+            result.features.length > 0 ||
+            !bbox ||
+            cancelled ||
+            requestIdRef.current !== requestId
+          ) {
+            return result;
+          }
+
+          return geocoding.forward(trimmedQuery, {
+            apiKey,
+            autocomplete: true,
+            country: countryCode ? [countryCode] : undefined,
+            fuzzyMatch: true,
+            limit,
+            proximity,
+            types: MAP_GEOCODING_TYPES,
+          });
         })
         .then((result) => {
           if (cancelled || requestIdRef.current !== requestId) return;
@@ -102,7 +126,16 @@ export function useGeocodingSearch({
       }
       window.clearTimeout(timeout);
     };
-  }, [countryCode, debounceMs, enabled, limit, minLength, proximity, query]);
+  }, [
+    bbox,
+    countryCode,
+    debounceMs,
+    enabled,
+    limit,
+    minLength,
+    proximity,
+    query,
+  ]);
 
   return {
     features,

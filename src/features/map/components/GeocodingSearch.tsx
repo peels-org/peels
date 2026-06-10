@@ -11,7 +11,7 @@ import {
 } from "react";
 import { X } from "lucide-react";
 import { css, styled } from "next-yak";
-import type { GeocodingFeature, Position } from "@maptiler/client";
+import type { BBox, GeocodingFeature, Position } from "@maptiler/client";
 
 import { theme } from "@/styles/theme.yak";
 import {
@@ -34,6 +34,7 @@ type GeocodingSearchProps = {
   ariaLabelledBy?: string;
   ariaInvalid?: "true" | "false";
   autoFocus?: boolean;
+  bbox?: BBox;
   clearLabel: string;
   countryCode?: string | null;
   error?: string;
@@ -233,6 +234,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
       ariaLabelledBy,
       ariaInvalid,
       autoFocus,
+      bbox,
       clearLabel,
       countryCode,
       error,
@@ -263,6 +265,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
     const showResults = hasSearchableQuery && canShowResults;
     const { features, isError, isLoading, isReady } = useGeocodingSearch({
       query,
+      bbox,
       countryCode,
       enabled: showResults,
       proximity,

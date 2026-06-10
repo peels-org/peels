@@ -4,16 +4,21 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useTranslations } from "next-intl";
 import { keyframes, styled } from "next-yak";
-import type { GeocodingFeature } from "@maptiler/client";
+import type { BBox, GeocodingFeature, Position } from "@maptiler/client";
 
 import { theme } from "@/styles/theme.yak";
 import GeocodingSearch from "./GeocodingSearch";
 
 type MapSearchProps = {
-  countryCode?: string | null;
+  searchContext: MapSearchContext | null;
   onOpenChange: (open: boolean) => void;
   onPick: (feature: GeocodingFeature) => void;
   open: boolean;
+};
+
+export type MapSearchContext = {
+  bbox?: BBox;
+  proximity: Position;
 };
 
 const overlayEnter = keyframes`
@@ -116,10 +121,10 @@ const DialogContent = styled(Dialog.Content)`
 `;
 
 export default function MapSearch({
-  countryCode,
   onOpenChange,
   onPick,
   open,
+  searchContext,
 }: MapSearchProps) {
   const mapT = useTranslations("Map");
 
@@ -135,8 +140,8 @@ export default function MapSearch({
           <GeocodingSearch
             ariaLabel={mapT("searchDialogTitle")}
             autoFocus={true}
+            bbox={searchContext?.bbox}
             clearLabel={mapT("searchClear")}
-            countryCode={countryCode}
             errorMessage={mapT("searchError")}
             loadingMessage={mapT("searchLoading")}
             noResultsMessage={mapT("searchNoResults")}
@@ -145,7 +150,7 @@ export default function MapSearch({
               onOpenChange(false);
             }}
             placeholder={mapT("searchPlaceholder")}
-            proximity="ip"
+            proximity={searchContext?.proximity}
             variant="palette"
           />
         </DialogContent>

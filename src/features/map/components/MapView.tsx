@@ -12,7 +12,7 @@ import Map, {
   type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
 import type { LngLatBounds } from "maplibre-gl";
-import type { GeocodingFeature } from "@maptiler/client";
+import type { BBox, GeocodingFeature, Position } from "@maptiler/client";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useLocale, useTranslations } from "next-intl";
 import { styled } from "next-yak";
@@ -21,7 +21,7 @@ import Button from "@/components/Button";
 import type { ListingMarker, SelectedListing } from "@/types/listing";
 
 import MapPinLayer from "./MapPinLayer";
-import MapSearch from "./MapSearch";
+import MapSearch, { type MapSearchContext } from "./MapSearch";
 import MapControls from "./MapControls";
 import {
   MAP_MAX_ZOOM,
@@ -29,6 +29,7 @@ import {
   ZOOM_LEVEL_SELECTED,
   getListingCoordinates,
   hasValidCoordinates,
+  padBounds,
   wrapLongitude,
 } from "../lib/mapUtils";
 import { useListingsInView } from "../hooks/useListingsInView";
@@ -51,7 +52,6 @@ type MapViewProps = {
   onMapClick: () => void;
   onMarkerClick: (listing: ListingMarker) => void;
   isDesktop: boolean;
-  countryCode: string | null;
 };
 
 const MapContainer = styled.div`
@@ -114,6 +114,7 @@ const PIN_HALO_MIN_SCALE = 0.18;
 const PIN_HALO_FULL_ZOOM = MAP_MAX_ZOOM;
 const PIN_HALO_GROWTH_EXPONENT = 2.2;
 const MAP_ZOOM_DISABLED_EPSILON = 0.001;
+const SEARCH_BOUNDS_PAD_FACTOR = 0.5;
 
 type MapPinZoomStyle = CSSProperties & {
   "--map-pin-compact-scale": string;
@@ -172,6 +173,45 @@ function isMapZoomAtMax(zoom: number) {
   return zoom >= MAP_MAX_ZOOM - MAP_ZOOM_DISABLED_EPSILON;
 }
 
+function areNumberArraysEqual(
+  first: readonly number[] | undefined,
+  second: readonly number[] | undefined
+) {
+  if (!first || !second) return first === second;
+  if (first.length !== second.length) return false;
+
+  return first.every((value, index) => value === second[index]);
+}
+
+function areSearchContextsEqual(
+  first: MapSearchContext | null,
+  second: MapSearchContext | null
+) {
+  if (!first || !second) return first === second;
+
+  return (
+    areNumberArraysEqual(first.bbox, second.bbox) &&
+    areNumberArraysEqual(first.proximity, second.proximity)
+  );
+}
+
+function resolveMapSearchContext(bounds: LngLatBounds): MapSearchContext {
+  const center = bounds.getCenter();
+  const paddedBoxes = padBounds(bounds, SEARCH_BOUNDS_PAD_FACTOR);
+  const bbox: BBox | undefined =
+    paddedBoxes.length === 1
+      ? [
+          paddedBoxes[0].west,
+          paddedBoxes[0].south,
+          paddedBoxes[0].east,
+          paddedBoxes[0].north,
+        ]
+      : undefined;
+  const proximity: Position = [wrapLongitude(center.lng), center.lat];
+
+  return { bbox, proximity };
+}
+
 function resolveInitialViewState(
   selectedListing: SelectedListing | null,
   initialCoordinates: InitialMapCoordinates | null
@@ -204,7 +244,6 @@ export default function MapView({
   onMapClick,
   onMarkerClick,
   isDesktop,
-  countryCode,
 }: MapViewProps) {
   const t = useTranslations("Map");
   const locale = useLocale();
@@ -212,6 +251,9 @@ export default function MapView({
   const mapRef = useRef<MapRef | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchContext, setSearchContext] = useState<MapSearchContext | null>(
+    null
+  );
   const [userCoordinates, setUserCoordinates] = useState<{
     latitude: number;
     longitude: number;
@@ -266,6 +308,16 @@ export default function MapView({
     },
     [requestBounds]
   );
+
+  const syncSearchContext = useCallback((bounds: LngLatBounds) => {
+    const nextSearchContext = resolveMapSearchContext(bounds);
+
+    setSearchContext((currentSearchContext) =>
+      areSearchContextsEqual(currentSearchContext, nextSearchContext)
+        ? currentSearchContext
+        : nextSearchContext
+    );
+  }, []);
 
   const syncZoomControlState = useCallback((zoom: number) => {
     const nextIsZoomInDisabled = isMapZoomAtMax(zoom);
@@ -344,10 +396,17 @@ export default function MapView({
 
     applyMapPinZoomVariables(map.getZoom());
     syncZoomControlState(map.getZoom());
-    emitBoundsChange(map.getBounds());
+    const bounds = map.getBounds();
+    emitBoundsChange(bounds);
+    syncSearchContext(bounds);
 
     return map;
-  }, [applyMapPinZoomVariables, emitBoundsChange, syncZoomControlState]);
+  }, [
+    applyMapPinZoomVariables,
+    emitBoundsChange,
+    syncSearchContext,
+    syncZoomControlState,
+  ]);
 
   const handleLoad = useCallback(() => {
     handleMapLoad();
@@ -427,10 +486,17 @@ export default function MapView({
       if (!map) return;
 
       scheduleStoredMapViewSave();
-      emitBoundsChange(map.getBounds());
+      const bounds = map.getBounds();
+      emitBoundsChange(bounds);
+      syncSearchContext(bounds);
       handleMapMoveEnd();
     },
-    [emitBoundsChange, handleMapMoveEnd, scheduleStoredMapViewSave]
+    [
+      emitBoundsChange,
+      handleMapMoveEnd,
+      scheduleStoredMapViewSave,
+      syncSearchContext,
+    ]
   );
 
   const handleMapClickInternal = useCallback(
@@ -557,7 +623,7 @@ export default function MapView({
           />
           <MapSearch
             onPick={handleSearchPick}
-            countryCode={countryCode}
+            searchContext={searchContext}
             open={isSearchOpen}
             onOpenChange={setIsSearchOpen}
           />
