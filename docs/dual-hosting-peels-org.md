@@ -5,10 +5,9 @@ Peels serves the same production app from both `https://www.peels.app` and
 dual-hosting phase. Apex `peels.org` is not an app origin; if used, it should
 redirect to `https://www.peels.org`.
 
-The current canonical SEO origin is still `https://www.peels.app`. The next
-planned step, after the dual-hosting period has had time to settle, is to make
-`https://www.peels.org` canonical while still keeping `.app` functional. A much
-later step can redirect `.app` to `.org`.
+The canonical SEO origin is now `https://www.peels.org`. Both hosts still serve
+the app with no redirect between them. A much later step can redirect `.app` to
+`.org`.
 
 ## Current state
 
@@ -25,12 +24,16 @@ Done:
   `https://www.peels.org`.
 - Supabase Edge Function email sending uses one configured sender:
   `GENERAL_EMAIL_ADDRESS`.
+- `siteConfig.url` is `https://www.peels.org`.
+- Supabase Auth Site URL is `https://www.peels.org`.
+- Both hosts emit `.org` canonical URLs, sitemap URLs, and robots sitemap
+  references.
+- `https://www.peels.org/sitemap.xml` submitted in Search Console (180 pages).
 
 Still intentional:
 
-- Keep `siteConfig.url` as `https://www.peels.app` during dual-hosting.
-- Keep Supabase Auth Site URL as `https://www.peels.app`.
-- Keep `PEELS_PUBLIC_SITE_URL` as `https://www.peels.app`.
+- Keep `PEELS_PUBLIC_SITE_URL` as `https://www.peels.app` until the
+  transactional-email URL cutover below is complete.
 - Keep `GENERAL_EMAIL_ADDRESS` on the currently verified `@peels.app` sender
   until the email cutover.
 - Do not redirect `peels.app` to `peels.org` yet.
@@ -60,24 +63,21 @@ unless a page says otherwise. The app only emits `noindex, follow` metadata for
 explicitly non-indexable surfaces.
 
 Canonical URLs are emitted through Next.js metadata as `<link rel="canonical"
-...>`, not as a `meta` tag. During this phase, pages on both domains should
-emit `.app` canonical URLs because `siteConfig.url` remains
-`https://www.peels.app`.
+...>`, not as a `meta` tag. Both domains now emit `.org` canonical URLs because
+`siteConfig.url` is `https://www.peels.org`.
 
-For now, the intended SEO shape is:
+The current SEO shape is:
 
 - `.app` and `.org` both render the app.
-- `.app` remains canonical in page metadata, sitemap, robots sitemap URL,
-  JSON-LD, RSS, Open Graph URLs, and newsletter content.
-- `.org` builds browser trust, partner familiarity, allow-list history, and
-  backlinks without asking search engines to treat it as the primary origin
-  yet.
+- `.org` is canonical in page metadata, sitemap, robots sitemap URL, JSON-LD,
+  Open Graph URLs, and RSS.
+- `.app` still serves the app and emits the same `.org` canonical metadata.
 
 ## Supabase during dual-hosting
 
 No SQL migration is needed for dual-hosting. Hosted Supabase Auth should have:
 
-- Site URL: `https://www.peels.app`
+- Site URL: `https://www.peels.org`
 - Redirect URLs:
   - `https://www.peels.app/**`
   - `https://www.peels.org/**`
@@ -114,37 +114,45 @@ Useful preparation:
 
 ## Making peels.org canonical
 
-Do this after the dual-hosting period has had enough time to build confidence
-and after third-party allow-lists, auth, and email flows have been smoke-tested
-on `.org`.
+Done:
 
-Code changes:
+1. `siteConfig.url` is `https://www.peels.org`.
+2. Supabase Auth Site URL is `https://www.peels.org`.
+3. `.app` and `.org` remain in the redirect allow-list.
+4. Tests expect `.org` canonical URLs.
+5. `https://www.peels.org/sitemap.xml` submitted in Search Console.
 
-1. Change `src/config/site.ts`:
-   - `siteConfig.url` to `https://www.peels.org`
-   - encoded contact emails once the email cutover is complete
-   - any visible `.app` wording that should become `.org`
-2. Search for remaining `.app` references in app code and content:
-   `rg "peels\\.app|Peels\\.app|siteConfig\\.url|encodedEmail" src supabase docs`
-3. Keep `src/config/appOrigins.ts` allowing both `https://www.peels.app` and
-   `https://www.peels.org` while `.app` still serves the app.
-4. Keep `supabase/functions/_shared/app-origin.ts` allowing both origins while
-   `.app` still serves the app.
-5. Update tests that assert `.app` canonical URLs so they expect `.org`.
+Next: transactional email URL cutover (`PEELS_PUBLIC_SITE_URL`):
 
-Supabase and Edge Function changes:
-
-1. Change Supabase Auth Site URL to `https://www.peels.org`.
-2. Keep `.app` and `.org` redirect URLs in the allow-list.
-3. Change `PEELS_PUBLIC_SITE_URL` to `https://www.peels.org`.
-4. If email sending has cut over, change `GENERAL_EMAIL_ADDRESS` to the chosen
-   `@peels.org` sender.
-5. Redeploy the email Edge Functions after changing code or secrets:
-   - `send-email-for-auth-action`
+1. Change `PEELS_PUBLIC_SITE_URL` to `https://www.peels.org` in Supabase Edge
+   Function secrets.
+2. Redeploy the functions that call `getPublicSiteUrl()`:
    - `send-email-for-new-chat-message`
    - `send-email-for-new-feature`
    - `send-email-for-newsletter-issue-supabase-users`
    - `send-email-for-newsletter-issue-resend-audience`
+3. Smoke-test one chat notification or newsletter link points to `.org`.
+
+Example CLI after `supabase login` and `supabase link --project-ref mfnaqdyunuafbwukbbyr`:
+
+```bash
+supabase secrets set PEELS_PUBLIC_SITE_URL=https://www.peels.org
+supabase functions deploy send-email-for-new-chat-message
+supabase functions deploy send-email-for-new-feature
+supabase functions deploy send-email-for-newsletter-issue-supabase-users
+supabase functions deploy send-email-for-newsletter-issue-resend-audience
+```
+
+Later canonical / email work still deferred:
+
+1. Change `encodedEmail` in `src/config/site.ts` once the email cutover is
+   complete.
+2. Search for remaining `.app` references in app code and content:
+   `rg "peels\\.app|Peels\\.app|siteConfig\\.url|encodedEmail" src supabase docs`
+3. If email sending has cut over, change `GENERAL_EMAIL_ADDRESS` to the chosen
+   `@peels.org` sender.
+4. Redeploy `send-email-for-auth-action` after any auth email code or secret
+   changes.
 
 Email cutover:
 
