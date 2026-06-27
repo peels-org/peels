@@ -63,15 +63,18 @@ high-volume transactional mail from Resend.
 
 **Do now**
 
-- Add a **DMARC monitor** record for `peels.org`, for example  
-  `_dmarc.peels.org TXT "v=DMARC1; p=none; rua=mailto:…"`.
+- Add a **DMARC monitor** record for `peels.org` at `p=none`, with an `rua`
+  reporting address you keep private (do not commit real mailbox addresses to
+  the repo).
 - Host **`@peels.org` on iCloud Mail** (or similar) for low-volume personal /
   manual mail — partner replies, support, one-to-one outreach. This is a good
   way to start real, human sending on the domain.
 - Use **`@peels.org` in new signatures and partner comms** so outbound human mail
   consistently comes from the new domain.
-- Plan **inbound aliases** early if useful, for example  
-  `support@peels.org` and forward `support@peels.app` → `support@peels.org`.
+- Plan **inbound aliases** early if useful: mirror each `@peels.app` mailbox
+  to the matching `@peels.org` address using your mail host’s forwarding
+  settings (use the same local parts you already use; keep addresses out of
+  public docs).
 
 **Keep in mind**
 
@@ -206,10 +209,11 @@ sending domain yet, there is no useful Resend DKIM record to add.
 
 Useful preparation:
 
-- Add or keep a low-impact DMARC monitor record for `peels.org`, for example
-  `_dmarc.peels.org TXT "v=DMARC1; p=none; rua=mailto:..."`
-- Configure inbound forwarding or aliases so `local-part@peels.app` forwards
-  to `local-part@peels.org`, if inbound mail should move before outbound mail.
+- Add or keep a low-impact DMARC monitor record for `peels.org` at `p=none`,
+  with a private `rua` reporting address (not committed to the repo).
+- Configure inbound forwarding or aliases so each `@peels.app` mailbox forwards
+  to the matching `@peels.org` address, if inbound mail should move before
+  outbound mail.
 
 ## Redirecting peels.app later
 
