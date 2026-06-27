@@ -29,15 +29,117 @@ Done:
 - Both hosts emit `.org` canonical URLs, sitemap URLs, and robots sitemap
   references.
 - `https://www.peels.org/sitemap.xml` submitted in Search Console (180 pages).
+- `PEELS_PUBLIC_SITE_URL` is `https://www.peels.org`.
+- Transactional email links (chat, newsletter, feature) use `.org`.
+- Share-page copy examples use `peels.org`.
 
 Still intentional:
 
-- Keep `PEELS_PUBLIC_SITE_URL` as `https://www.peels.app` until the
-  transactional-email URL cutover below is complete.
 - Keep `GENERAL_EMAIL_ADDRESS` on the currently verified `@peels.app` sender
-  until the email cutover.
+  until the Resend cutover below.
 - Do not redirect `peels.app` to `peels.org` yet.
 - Do not add a global `noindex` rule to `.org`.
+
+## Next steps
+
+Work through these in order. None of them block the others except the Resend
+cutover, which should wait until `@peels.org` has basic domain reputation and
+DNS is planned for both personal mail and Resend.
+
+### 1. Monitor SEO (now — a few weeks)
+
+- Watch the **`.org`** Search Console property: indexed pages, impressions, and
+  coverage on `.org` URLs.
+- Keep the **`.app`** property for reference; indexed `.app` URLs should decline
+  over time as Google respects the `.org` canonical tags. No Change of Address
+  or URL-removal action is needed yet.
+- Do not submit a separate `.app` sitemap; both hosts already advertise the
+  `.org` sitemap in `robots.txt`.
+
+### 2. Warm up `@peels.org` as a mail domain (now — parallel)
+
+Goal: build legitimate sending history on `peels.org` before moving
+high-volume transactional mail from Resend.
+
+**Do now**
+
+- Add a **DMARC monitor** record for `peels.org` at `p=none`, with an `rua`
+  reporting address you keep private (do not commit real mailbox addresses to
+  the repo).
+- Host **`@peels.org` on iCloud Mail** (or similar) for low-volume personal /
+  manual mail — partner replies, support, one-to-one outreach. This is a good
+  way to start real, human sending on the domain.
+- Use **`@peels.org` in new signatures and partner comms** so outbound human mail
+  consistently comes from the new domain.
+- Plan **inbound aliases** early if useful: mirror each `@peels.app` mailbox
+  to the matching `@peels.org` address using your mail host’s forwarding
+  settings (use the same local parts you already use; keep addresses out of
+  public docs).
+
+**Keep in mind**
+
+- **Do not** send app transactional volume (auth, chat, newsletter) through
+  iCloud. That stays on Resend `@peels.app` until cutover.
+- Before verifying **`peels.org` in Resend**, plan DNS so **SPF can authorise
+  both** iCloud and Resend in one record, for example  
+  `v=spf1 include:icloud.com include:amazonses.com -all` (use Resend’s exact
+  include when they provide it). Do not add Resend DKIM until you are ready to
+  cut over; DKIM is per provider.
+- Warm-up is **low and slow**: real recipients, replies welcome, no bulk blasts
+  from the new domain before Resend cutover.
+
+### 3. Resend cutover to `@peels.org` (when ready — not urgent)
+
+Do this after a few weeks of monitoring and some human `@peels.org` mail, when
+you are ready to change the From address users see on automated emails.
+
+**Resend / DNS**
+
+1. Verify `peels.org` as a sending domain in Resend.
+2. Add only the **SPF and DKIM** records Resend provides (merge SPF with iCloud
+   as above).
+3. Keep DMARC at **`p=none`** until test sends pass; tighten gradually if
+   wanted.
+
+**App / Supabase**
+
+1. Change `GENERAL_EMAIL_ADDRESS` to the chosen `@peels.org` address (Supabase
+   Edge Function secret).
+2. Update `encodedEmail` in [`src/config/site.ts`](../src/config/site.ts).
+3. Redeploy email Edge Functions:
+   - `send-email-for-auth-action`
+   - `send-email-for-new-chat-message`
+   - `send-email-for-new-feature`
+   - `send-email-for-newsletter-issue-supabase-users`
+   - `send-email-for-newsletter-issue-resend-audience`
+4. Smoke-test every email type: sign-up, sign-in, password reset, email change,
+   chat notification, newsletter, feature announcement.
+5. Stop using the `peels.app` Resend sending domain once satisfied.
+6. Keep `@peels.app` **inbound forwarding** for stale threads if needed.
+
+**Code tidy-up after cutover**
+
+- Search for remaining `.app` references:  
+  `rg "peels\\.app|Peels\\.app|encodedEmail" src supabase docs`
+
+### 4. Partner and public links (gradual — low urgency)
+
+- Use `https://www.peels.org/...` in everything Peels publishes going forward.
+- Optionally ask high-value partners (councils, orgs on the Partners page) to
+  update links when convenient. Old `.app` links still work; canonical tags
+  and a future redirect handle SEO. Partner updates mainly help **humans** who
+  copy URLs from council pages.
+
+### 5. Redirect `.app` → `.org` (later)
+
+Do this only after `.org` has been canonical for a while and you no longer need
+`.app` to serve the app directly. See [Redirecting peels.app later](#redirecting-peelsapp-later).
+
+After redirects are live:
+
+- Use **Change of Address** in Search Console (`.app` → `.org` property).
+- Remove `.app` from app origin allow-lists and Supabase redirect URLs once old
+  auth links and cached emails are no longer relevant.
 
 ## Why the code changes matter
 
@@ -107,84 +209,11 @@ sending domain yet, there is no useful Resend DKIM record to add.
 
 Useful preparation:
 
-- Add or keep a low-impact DMARC monitor record for `peels.org`, for example
-  `_dmarc.peels.org TXT "v=DMARC1; p=none; rua=mailto:..."`
-- Configure inbound forwarding or aliases so `local-part@peels.app` forwards
-  to `local-part@peels.org`, if inbound mail should move before outbound mail.
-
-## Making peels.org canonical
-
-Done:
-
-1. `siteConfig.url` is `https://www.peels.org`.
-2. Supabase Auth Site URL is `https://www.peels.org`.
-3. `.app` and `.org` remain in the redirect allow-list.
-4. Tests expect `.org` canonical URLs.
-5. `https://www.peels.org/sitemap.xml` submitted in Search Console.
-
-Next: transactional email URL cutover (`PEELS_PUBLIC_SITE_URL`):
-
-1. Change `PEELS_PUBLIC_SITE_URL` to `https://www.peels.org` in Supabase Edge
-   Function secrets.
-2. Redeploy the functions that call `getPublicSiteUrl()`:
-   - `send-email-for-new-chat-message`
-   - `send-email-for-new-feature`
-   - `send-email-for-newsletter-issue-supabase-users`
-   - `send-email-for-newsletter-issue-resend-audience`
-3. Smoke-test one chat notification or newsletter link points to `.org`.
-
-Example CLI after `supabase login` and `supabase link --project-ref mfnaqdyunuafbwukbbyr`:
-
-```bash
-supabase secrets set PEELS_PUBLIC_SITE_URL=https://www.peels.org
-supabase functions deploy send-email-for-new-chat-message
-supabase functions deploy send-email-for-new-feature
-supabase functions deploy send-email-for-newsletter-issue-supabase-users
-supabase functions deploy send-email-for-newsletter-issue-resend-audience
-```
-
-Later canonical / email work still deferred:
-
-1. Change `encodedEmail` in `src/config/site.ts` once the email cutover is
-   complete.
-2. Search for remaining `.app` references in app code and content:
-   `rg "peels\\.app|Peels\\.app|siteConfig\\.url|encodedEmail" src supabase docs`
-3. If email sending has cut over, change `GENERAL_EMAIL_ADDRESS` to the chosen
-   `@peels.org` sender.
-4. Redeploy `send-email-for-auth-action` after any auth email code or secret
-   changes.
-
-Email cutover:
-
-1. Verify `peels.org` as the single Resend sending domain.
-2. Add only the SPF and DKIM records Resend gives for `peels.org`.
-3. Keep DMARC at `p=none` until test sends pass, then tighten gradually if
-   wanted.
-4. Stop using the `peels.app` sending domain once `GENERAL_EMAIL_ADDRESS` has
-   moved and test sends pass.
-
-External setup:
-
-- Make `www.peels.org` the primary production domain in Vercel if useful.
-- Keep `www.peels.app` attached to the project for now.
-- Check Cloudflare DNS, Turnstile, MapTiler, Protomaps, Vercel Analytics, and
-  any monitoring or uptime checks for `.org`.
-- Verify `www.peels.org` in search tools and submit
-  `https://www.peels.org/sitemap.xml`.
-- Ask partners to add or update links to `.org`, but do not require existing
-  `.app` links to change immediately.
-
-Verification after the canonical flip:
-
-- `https://www.peels.org/listings/QE4QxdJ4y5YE` renders correctly.
-- `https://www.peels.app/listings/QE4QxdJ4y5YE` still renders correctly.
-- Both domains emit canonical links pointing to `.org`.
-- `/robots.txt` on both domains references the `.org` sitemap.
-- `/sitemap.xml` contains `.org` URLs.
-- JSON-LD, Open Graph, RSS, and newsletter feed URLs use `.org`.
-- Sign-up, sign-in, password reset, email confirmation, email change, chat
-  notifications, and newsletter sends work.
-- UTM parameters are captured on whichever domain receives the first visit.
+- Add or keep a low-impact DMARC monitor record for `peels.org` at `p=none`,
+  with a private `rua` reporting address (not committed to the repo).
+- Configure inbound forwarding or aliases so each `@peels.app` mailbox forwards
+  to the matching `@peels.org` address, if inbound mail should move before
+  outbound mail.
 
 ## Redirecting peels.app later
 
@@ -229,7 +258,7 @@ Before merging or shortly after deployment, verify:
 
 - `https://www.peels.org/listings/QE4QxdJ4y5YE` renders the same listing as
   `.app`.
-- The same listing on `.org` emits a `.app` canonical link during dual-hosting.
+- The same listing on `.org` emits a `.org` canonical link.
 - Sign-up works from `.org`.
 - Sign-in works from `.org`.
 - Password reset and email confirmation return to `.org`.

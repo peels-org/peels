@@ -6,6 +6,18 @@ These instructions apply to the whole repository.
 
 - Use Australian/British English over US English.
 
+## Git, commits, and pull requests
+
+- Start commit and PR titles with a lowercase actionable verb, such as `fixes`,
+  `updates`, `adds`, `removes`, or `improves`. Use title case only for proper
+  nouns (Peels, Supabase, Vercel, and so on).
+- Do not merge pull requests unless the human explicitly asks you to merge.
+- When opening a pull request, follow
+  [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md).
+- Do not put harvestable email addresses in docs, commits, plans, or other public
+  repo text. Reference env var names, `siteConfig.encodedEmail`, or generic
+  `local-part@domain` placeholders instead.
+
 ## Frontend
 
 - Prefer Server Components by default. Only add `"use client"` when the component needs browser-only APIs, state/effects, event handlers, or client-only libraries.
