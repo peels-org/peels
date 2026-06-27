@@ -4,9 +4,9 @@ import { DONOR_EMAIL, SEEDED_THREAD_ID, signIn } from "./helpers";
 const LISTING_PATH = "/listings/demo-marrickville-compost";
 const MAP_LISTING_PATH = "/map?listing=demo-marrickville-compost";
 const RESIDENTIAL_LISTING_PATH = "/listings/demo-newtown-worm-farm";
-const SITE_URL = "https://www.peels.app";
+const SITE_URL = "https://www.peels.org";
 const DEFAULT_OG_IMAGE_PATTERN =
-  /^https:\/\/www\.peels\.app\/opengraph-image\.jpg/;
+  /^https:\/\/www\.peels\.org\/opengraph-image\.jpg/;
 
 async function getMetaDescription(page: import("@playwright/test").Page) {
   return page.locator('head meta[name="description"]').getAttribute("content");
@@ -205,7 +205,7 @@ test("public listing pages expose crawlable listing metadata", async ({
   const listingJsonLd = parseJsonLdScripts(jsonLdScripts).find(
     (data) =>
       data["@id"] ===
-      "https://www.peels.app/listings/demo-marrickville-compost#webpage"
+      "https://www.peels.org/listings/demo-marrickville-compost#webpage"
   );
   expect(listingJsonLd?.about?.additionalProperty).toEqual(
     expect.arrayContaining([
@@ -263,7 +263,7 @@ test("anonymous residential listing pages expose indexable public content withou
   const listingJsonLd = parseJsonLdScripts(jsonLdScripts).find(
     (data) =>
       data["@id"] ===
-      "https://www.peels.app/listings/demo-newtown-worm-farm#webpage"
+      "https://www.peels.org/listings/demo-newtown-worm-farm#webpage"
   );
 
   expect(listingJsonLd).toEqual(
@@ -317,7 +317,7 @@ test("public listing pages localise Spanish SEO metadata", async ({
     const listingJsonLd = parseJsonLdScripts(jsonLdScripts).find(
       (data) =>
         data["@id"] ===
-        "https://www.peels.app/listings/demo-marrickville-compost#webpage"
+        "https://www.peels.org/listings/demo-marrickville-compost#webpage"
     );
     expect(listingJsonLd?.about?.additionalProperty).toEqual(
       expect.arrayContaining([
@@ -537,5 +537,5 @@ test("robots.txt allows crawling and advertises the sitemap", async ({
 
   const robots = await response.text();
   expect(robots).toContain("Allow: /");
-  expect(robots).toContain("Sitemap: https://www.peels.app/sitemap.xml");
+  expect(robots).toContain("Sitemap: https://www.peels.org/sitemap.xml");
 });
