@@ -150,8 +150,8 @@ test("listing metadata uses the listing name with the site title template", () =
 test("root metadata canonical matches the sitemap homepage URL", () => {
   const metadata = createPeelsMetadata({ canonicalPath: "/" });
 
-  assert.equal(metadata.alternates?.canonical, "https://www.peels.app");
-  assert.equal(metadata.openGraph?.url, "https://www.peels.app");
+  assert.equal(metadata.alternates?.canonical, "https://www.peels.org");
+  assert.equal(metadata.openGraph?.url, "https://www.peels.org");
 });
 
 test("shared metadata uses the page title for social previews", () => {
@@ -193,11 +193,11 @@ test("listing metadata includes the canonical listing path", () => {
 
   assert.equal(
     metadata.alternates?.canonical,
-    "https://www.peels.app/listings/test-community-compost"
+    "https://www.peels.org/listings/test-community-compost"
   );
   assert.equal(
     metadata.openGraph?.url,
-    "https://www.peels.app/listings/test-community-compost"
+    "https://www.peels.org/listings/test-community-compost"
   );
 });
 
@@ -421,7 +421,7 @@ test("listing JSON-LD describes the public listing page and place conservatively
   assert.equal(jsonLd.name, "Neighbourhood compost drop-off");
   assert.equal(
     jsonLd.url,
-    "https://www.peels.app/listings/test-community-compost"
+    "https://www.peels.org/listings/test-community-compost"
   );
   assert.equal(jsonLd.about["@type"], "Place");
   assert.ok(jsonLd.about.address);
