@@ -31,7 +31,7 @@ Done:
 - `https://www.peels.org/sitemap.xml` submitted in Search Console (180 pages).
 - `PEELS_PUBLIC_SITE_URL` is `https://www.peels.org`.
 - Transactional email links (chat, newsletter, feature) use `.org`.
-- Share-page copy examples and JSON-LD `alternateName` use `peels.org`.
+- Share-page copy examples use `peels.org`.
 
 Still intentional:
 

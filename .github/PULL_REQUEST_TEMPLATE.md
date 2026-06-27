@@ -1,6 +1,17 @@
-Thank you for your contribution to Peels! Before submitting this PR, please make sure you have:
+## Summary
 
-- [ ] Run `npm run format` on your changes
-- [ ] Run `npm run build` without any errors or warnings
+<!-- Replace this comment. Lead with why the change exists, not just what changed. -->
+<!-- One to three short bullets. Mention user-visible impact when there is one. -->
 
-Once that’s all done, go ahead and replace the contents of this template with a description of your changes. Thanks again!
+-
+
+## Test plan
+
+<!-- Check what you ran. Leave unchecked items for the reviewer if you could not run them. -->
+
+- [ ] `npm run check`
+- [ ] Other (describe):
+
+## Notes
+
+<!-- Optional: deploy steps, Supabase dashboard changes, follow-up work, or screenshots. Omit if nothing useful to add. -->

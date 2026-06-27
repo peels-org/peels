@@ -58,7 +58,6 @@ const websiteJsonLd = {
   "@type": "WebSite",
   "@id": `${siteConfig.url}/#website`,
   name: siteConfig.name,
-  alternateName: "Peels.org",
   url: siteConfig.url,
   publisher: {
     "@id": `${siteConfig.url}/#organization`,
