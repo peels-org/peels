@@ -1,8 +1,8 @@
-export const defaultAppOrigin = "https://www.peels.app";
+export const defaultAppOrigin = "https://www.peels.org";
 
 const supportedAppOrigins = new Set([
   defaultAppOrigin,
-  "https://www.peels.org",
+  "https://www.peels.app",
 ]);
 
 export const getSupportedAppOrigin = (origin: string | null | undefined) => {

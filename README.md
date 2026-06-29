@@ -1,6 +1,6 @@
 # Peels
 
-[Peels](https://www.peels.app) connects folks with food scraps to those who compost. It’s a free, non-commercial, community project.
+[Peels](https://www.peels.org) connects folks with food scraps to those who compost. It’s a free, non-commercial, community project.
 
 Peels is built on top of Next.js and Supabase. The code is [open source](#forking-peels) and could be used as a starting point for your own circular economy projects.
 
@@ -362,4 +362,4 @@ Check out the [Next.js and Supabase Starter Kit](https://github.com/supabase/sup
 - Maps powered by [MapTiler](https://www.maptiler.com) and [Protomaps](https://protomaps.com)
 - Styled components built with [Next Yak](https://yak.js.org)
 
-See the [Colophon](https://www.peels.app/colophon) and [Wiki](https://peels.notion.site/207b37e1678f80259217f54cd9d1f637) for more.
+See the [Colophon](https://www.peels.org/colophon) and [Wiki](https://peels.notion.site/207b37e1678f80259217f54cd9d1f637) for more.
