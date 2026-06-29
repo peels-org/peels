@@ -38,14 +38,17 @@ Done:
   page, legal pages, and other public mailto links.
 - `@peels.org` inbound mailboxes are live on Migadu (`support`, `team`, `danny`,
   `newsletter`, and other local parts as needed).
+- `defaultAppOrigin` is `https://www.peels.org` in app and Edge Function redirect
+  helpers; `.app` remains in the supported allow-list only.
 
 Still intentional:
 
 - Keep `GENERAL_EMAIL_ADDRESS` on the currently verified `@peels.app` Resend
   sender until the Resend cutover below. No other outbound email env vars exist
   in this repo; Edge Functions use that one secret for every automated send.
-- Remaining `.app` references in source are dual-hosting origins (`appOrigins`),
-  seed data, partner external links, and README — not public contact addresses.
+- Remaining `.app` references in source are the dual-hosting `.app` entry in
+  `supportedAppOrigins`, partner external links, and docs — not public contact
+  addresses.
 - Do not redirect `peels.app` to `peels.org` yet.
 - Do not add a global `noindex` rule to `.org`.
 
