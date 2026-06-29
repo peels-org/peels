@@ -32,11 +32,20 @@ Done:
 - `PEELS_PUBLIC_SITE_URL` is `https://www.peels.org`.
 - Transactional email links (chat, newsletter, feature) use `.org`.
 - Share-page copy examples use `peels.org`.
+- DMARC monitor on `_dmarc.peels.org` at `p=none` with Cloudflare aggregate
+  reporting (keep the `rua` address in DNS only, not in the repo).
+- `siteConfig.encodedEmail` shows `@peels.org` contact addresses on the help
+  page, legal pages, and other public mailto links.
+- `@peels.org` inbound mailboxes are live on Migadu (`support`, `team`, `danny`,
+  `newsletter`, and other local parts as needed).
 
 Still intentional:
 
-- Keep `GENERAL_EMAIL_ADDRESS` on the currently verified `@peels.app` sender
-  until the Resend cutover below.
+- Keep `GENERAL_EMAIL_ADDRESS` on the currently verified `@peels.app` Resend
+  sender until the Resend cutover below. No other outbound email env vars exist
+  in this repo; Edge Functions use that one secret for every automated send.
+- Remaining `.app` references in source are dual-hosting origins (`appOrigins`),
+  seed data, partner external links, and README — not public contact addresses.
 - Do not redirect `peels.app` to `peels.org` yet.
 - Do not add a global `noindex` rule to `.org`.
 
@@ -63,28 +72,23 @@ high-volume transactional mail from Resend.
 
 **Do now**
 
-- Add a **DMARC monitor** record for `peels.org` at `p=none`, with an `rua`
-  reporting address you keep private (do not commit real mailbox addresses to
-  the repo).
-- Host **`@peels.org` on iCloud Mail** (or similar) for low-volume personal /
-  manual mail — partner replies, support, one-to-one outreach. This is a good
-  way to start real, human sending on the domain.
+- **`@peels.org` on Migadu** is set up for low-volume personal / manual mail —
+  partner replies, support, one-to-one outreach. Keep using it to build real,
+  human sending history on the domain.
 - Use **`@peels.org` in new signatures and partner comms** so outbound human mail
   consistently comes from the new domain.
-- Plan **inbound aliases** early if useful: mirror each `@peels.app` mailbox
-  to the matching `@peels.org` address using your mail host’s forwarding
-  settings (use the same local parts you already use; keep addresses out of
-  public docs).
+- Optional: forward each **`@peels.app` mailbox** to the matching `@peels.org`
+  address in Migadu (or your `.app` mail host) so stale inbound threads still
+  reach the new inboxes.
 
 **Keep in mind**
 
 - **Do not** send app transactional volume (auth, chat, newsletter) through
-  iCloud. That stays on Resend `@peels.app` until cutover.
+  Migadu. That stays on Resend `@peels.app` until cutover.
 - Before verifying **`peels.org` in Resend**, plan DNS so **SPF can authorise
-  both** iCloud and Resend in one record, for example  
-  `v=spf1 include:icloud.com include:amazonses.com -all` (use Resend’s exact
-  include when they provide it). Do not add Resend DKIM until you are ready to
-  cut over; DKIM is per provider.
+  both** Migadu and Resend in one record (use each provider’s exact include;
+  Resend’s is typically `amazonses.com`). Do not add Resend DKIM until you are
+  ready to cut over; DKIM is per provider.
 - Warm-up is **low and slow**: real recipients, replies welcome, no bulk blasts
   from the new domain before Resend cutover.
 
@@ -96,7 +100,7 @@ you are ready to change the From address users see on automated emails.
 **Resend / DNS**
 
 1. Verify `peels.org` as a sending domain in Resend.
-2. Add only the **SPF and DKIM** records Resend provides (merge SPF with iCloud
+2. Add only the **SPF and DKIM** records Resend provides (merge SPF with Migadu
    as above).
 3. Keep DMARC at **`p=none`** until test sends pass; tighten gradually if
    wanted.
@@ -105,17 +109,16 @@ you are ready to change the From address users see on automated emails.
 
 1. Change `GENERAL_EMAIL_ADDRESS` to the chosen `@peels.org` address (Supabase
    Edge Function secret).
-2. Update `encodedEmail` in [`src/config/site.ts`](../src/config/site.ts).
-3. Redeploy email Edge Functions:
+2. Redeploy email Edge Functions:
    - `send-email-for-auth-action`
    - `send-email-for-new-chat-message`
    - `send-email-for-new-feature`
    - `send-email-for-newsletter-issue-supabase-users`
    - `send-email-for-newsletter-issue-resend-audience`
-4. Smoke-test every email type: sign-up, sign-in, password reset, email change,
+3. Smoke-test every email type: sign-up, sign-in, password reset, email change,
    chat notification, newsletter, feature announcement.
-5. Stop using the `peels.app` Resend sending domain once satisfied.
-6. Keep `@peels.app` **inbound forwarding** for stale threads if needed.
+4. Stop using the `peels.app` Resend sending domain once satisfied.
+5. Keep `@peels.app` **inbound forwarding** for stale threads if needed.
 
 **Code tidy-up after cutover**
 
@@ -209,8 +212,8 @@ sending domain yet, there is no useful Resend DKIM record to add.
 
 Useful preparation:
 
-- Add or keep a low-impact DMARC monitor record for `peels.org` at `p=none`,
-  with a private `rua` reporting address (not committed to the repo).
+- DMARC monitor on `_dmarc.peels.org` is already in place at `p=none`. Review
+  Cloudflare aggregate reports as Migadu and later Resend sending grows.
 - Configure inbound forwarding or aliases so each `@peels.app` mailbox forwards
   to the matching `@peels.org` address, if inbound mail should move before
   outbound mail.

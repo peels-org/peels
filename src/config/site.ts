@@ -17,10 +17,10 @@ export const siteConfig = {
     join: "/sign-up",
   },
   encodedEmail: {
-    support: "c3VwcG9ydEBwZWVscy5hcHA=",
-    dw: "ZGFubnlAcGVlbHMuYXBw",
-    general: "dGVhbUBwZWVscy5hcHA=",
-    newsletter: "bmV3c2xldHRlckBwZWVscy5hcHA=",
+    support: "c3VwcG9ydEBwZWVscy5vcmc=",
+    dw: "ZGFubnlAcGVlbHMub3Jn",
+    general: "dGVhbUBwZWVscy5vcmc=",
+    newsletter: "bmV3c2xldHRlckBwZWVscy5vcmc=",
   },
   meta: {
     explainer:
