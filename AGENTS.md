@@ -8,8 +8,8 @@ These instructions apply to the whole repository.
 
 ## Git, commits, and pull requests
 
-- Start commit and PR titles with a lowercase actionable verb, such as `fixes`,
-  `updates`, `adds`, `removes`, or `improves`. Use title case only for proper
+- Start commit and PR titles with a simple present tense lowercase actionable verb, such as `fix`,
+  `update`, `add`, `remove`, or `improve`. Use title case only for proper
   nouns (Peels, Supabase, Vercel, and so on).
 - Do not merge pull requests unless the human explicitly asks you to merge.
 - When opening a pull request, follow
