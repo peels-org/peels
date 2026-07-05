@@ -27,6 +27,7 @@ import {
   MAP_MAX_ZOOM,
   ZOOM_LEVEL_DEFAULT,
   ZOOM_LEVEL_SELECTED,
+  approximateBoundsFromViewState,
   getListingCoordinates,
   hasValidCoordinates,
   padBounds,
@@ -212,6 +213,20 @@ function resolveMapSearchContext(bounds: LngLatBounds): MapSearchContext {
   return { bbox, proximity };
 }
 
+function resolveInitialSearchContext(
+  initialCoordinates: InitialMapCoordinates | null
+): MapSearchContext | null {
+  if (!initialCoordinates) return null;
+
+  return resolveMapSearchContext(
+    approximateBoundsFromViewState(
+      initialCoordinates.longitude,
+      initialCoordinates.latitude,
+      initialCoordinates.zoom
+    )
+  );
+}
+
 function resolveInitialViewState(
   selectedListing: SelectedListing | null,
   initialCoordinates: InitialMapCoordinates | null
@@ -252,7 +267,7 @@ export default function MapView({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchContext, setSearchContext] = useState<MapSearchContext | null>(
-    null
+    () => resolveInitialSearchContext(initialCoordinates)
   );
   const [userCoordinates, setUserCoordinates] = useState<{
     latitude: number;
@@ -427,6 +442,19 @@ export default function MapView({
     }
   }, [initialCoordinates]);
 
+  useEffect(() => {
+    if (!initialCoordinates) return;
+
+    setSearchContext((currentSearchContext) => {
+      if (currentSearchContext?.bbox) return currentSearchContext;
+
+      const nextSearchContext = resolveInitialSearchContext(initialCoordinates);
+      return areSearchContextsEqual(currentSearchContext, nextSearchContext)
+        ? currentSearchContext
+        : nextSearchContext;
+    });
+  }, [initialCoordinates]);
+
   const scheduleStoredMapViewSave = useCallback(() => {
     if (saveMapViewTimeoutRef.current !== null) {
       clearTimeout(saveMapViewTimeoutRef.current);
@@ -539,6 +567,11 @@ export default function MapView({
     );
   }, [flyToCoordinate]);
 
+  const handleOpenSearch = useCallback(() => {
+    syncCurrentMapState();
+    setIsSearchOpen(true);
+  }, [syncCurrentMapState]);
+
   const handleSearchPick = useCallback(
     (feature: GeocodingFeature) => {
       const center = feature.center;
@@ -561,6 +594,7 @@ export default function MapView({
       ref={mapContainerRef}
       role="region"
       aria-label={t("mapRegionLabel")}
+      data-search-context-ready={searchContext?.proximity ? "true" : "false"}
       data-testid="map-view"
       style={initialMapPinZoomStyleRef.current ?? undefined}
     >
@@ -612,7 +646,7 @@ export default function MapView({
             locateActive={Boolean(userCoordinates)}
             locateLabel={t("locateControl")}
             onLocate={handleLocate}
-            onSearch={() => setIsSearchOpen(true)}
+            onSearch={handleOpenSearch}
             onZoomIn={zoomIn}
             onZoomOut={zoomOut}
             searchLabel={t("searchLabel")}

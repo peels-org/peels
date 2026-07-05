@@ -376,6 +376,10 @@ test("map search is bounded by the current map instead of IP country", async ({
     ).toBeVisible({
       timeout: 10_000,
     });
+    await expect(page.getByTestId("map-view")).toHaveAttribute(
+      "data-search-context-ready",
+      "true"
+    );
 
     await page.getByTestId("map-control-search").click();
     await page.getByTestId("geocoding-search-input").fill("Newtown");
