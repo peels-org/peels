@@ -145,37 +145,35 @@ export const communityMediaMentions = [
   },
 ] as const;
 
-const homepageFeaturedMentionRefs = [
-  { source: "council", name: "State of California" },
-  { source: "council", name: "Lenawee County, Michigan" },
-  { source: "council", name: "Merri-bek City Council" },
-  { source: "council", name: "Northern Beaches Council" },
+const homepageFeaturedMentionNames = [
+  "State of California",
+  "Lenawee County, Michigan",
+  "Merri-bek City Council",
+  "Northern Beaches Council",
 ] as const;
 
-const homepageFeaturedMentionDesktopExtraRefs = [
-  { source: "council", name: "Western Australian Government" },
-  { source: "council", name: "North Sydney Council" },
+const homepageFeaturedMentionDesktopExtraNames = [
+  "Western Australian Government",
+  "North Sydney Council",
 ] as const;
 
-type HomepageFeaturedMentionRef =
-  | (typeof homepageFeaturedMentionRefs)[number]
-  | (typeof homepageFeaturedMentionDesktopExtraRefs)[number];
-
-function getHomepageFeaturedMention(ref: HomepageFeaturedMentionRef) {
-  const mentions =
-    ref.source === "media" ? communityMediaMentions : councilMentions;
-  const mention = mentions.find(({ name }) => name === ref.name);
+function getCouncilMentionByName(
+  mentionName:
+    | (typeof homepageFeaturedMentionNames)[number]
+    | (typeof homepageFeaturedMentionDesktopExtraNames)[number]
+) {
+  const mention = councilMentions.find(({ name }) => name === mentionName);
 
   if (!mention) {
-    throw new Error(`Missing homepage featured mention: ${ref.name}`);
+    throw new Error(`Missing homepage featured mention: ${mentionName}`);
   }
 
   return mention;
 }
 
-export const homepageFeaturedMentions = homepageFeaturedMentionRefs.map(
-  getHomepageFeaturedMention
+export const homepageFeaturedMentions = homepageFeaturedMentionNames.map(
+  getCouncilMentionByName
 );
 
 export const homepageFeaturedMentionDesktopExtras =
-  homepageFeaturedMentionDesktopExtraRefs.map(getHomepageFeaturedMention);
+  homepageFeaturedMentionDesktopExtraNames.map(getCouncilMentionByName);
