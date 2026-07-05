@@ -16,7 +16,7 @@ type AvatarSize = "massive" | "large" | "medium" | "small" | "tiny";
 type AvatarRotation = "normal" | "reverse";
 
 type AvatarListing = {
-  type?: "residential" | "community" | "business" | string;
+  type?: "residential" | "community" | "business" | string | null;
   owner_avatar?: string | null;
   avatar?: string | null;
 };

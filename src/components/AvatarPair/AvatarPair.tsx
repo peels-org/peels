@@ -14,7 +14,7 @@ type AvatarPairWidth = "fixed";
 
 type AvatarPairListing = {
   is_demo?: boolean;
-  type?: "residential" | "community" | "business" | string;
+  type?: "residential" | "community" | "business" | string | null;
   avatar?: string | null;
   owner_avatar?: string | null;
 };
