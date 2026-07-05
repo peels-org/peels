@@ -8,7 +8,7 @@ Peels is built on top of Next.js and Supabase. The code is [open source](#forkin
 
 ```bash
 # Clone the repository
-git clone https://github.com/dnywh/peels.git
+git clone https://github.com/peels-org/peels.git
 cd peels
 
 # Install dependencies
@@ -65,11 +65,11 @@ peels/
 
 ## Contributing to Peels
 
-Thank you for contributing! Please read our [Code of Conduct](https://github.com/dnywh/peels/blob/main/.github/CODE_OF_CONDUCT.md) and [contributing guidelines](https://github.com/dnywh/peels/contribute) before you start.
+Thank you for contributing! Please read our [Code of Conduct](https://github.com/peels-org/peels/blob/main/.github/CODE_OF_CONDUCT.md) and [contributing guidelines](https://github.com/peels-org/peels/contribute) before you start.
 
-Check out the list of [issues](https://github.com/dnywh/peels/issues) you could help out on, [discussions](https://github.com/dnywh/peels/discussions) about future improvements, and our [Wiki](https://peels.notion.site/207b37e1678f80259217f54cd9d1f637) for information on how things are set up.
+Check out the list of [issues](https://github.com/peels-org/peels/issues) you could help out on, [discussions](https://github.com/peels-org/peels/discussions) about future improvements, and our [Wiki](https://peels.notion.site/207b37e1678f80259217f54cd9d1f637) for information on how things are set up.
 
-For minor improvements, feel free to just go ahead and create a pull request. For major changes, please [open an issue](https://github.com/dnywh/peels/issues) first to discuss what you would like to change.
+For minor improvements, feel free to just go ahead and create a pull request. For major changes, please [open an issue](https://github.com/peels-org/peels/issues) first to discuss what you would like to change.
 
 ### Environment Variables
 
@@ -87,7 +87,7 @@ For local-first Supabase development:
 The repo defaults `NEXT_PUBLIC_SUPABASE_URL` to `http://127.0.0.1:54331` so local development does not need to point at the hosted Peels project. If you already had a `.env.local` from hosted development, update that value manually because copying `.env.example` later may not overwrite your existing file.
 Peels intentionally uses the `54331`-`54334` local port range so it can run alongside other Supabase projects that still use the CLI defaults.
 
-If you need to serve [Supabase edge functions](https://github.com/dnywh/peels/blob/main/supabase/functions) locally, copy `supabase/.env.example` to `supabase/.env` and add only the secrets you actually need. Production secrets should remain dashboard-managed for now.
+If you need to serve [Supabase edge functions](https://github.com/peels-org/peels/blob/main/supabase/functions) locally, copy `supabase/.env.example` to `supabase/.env` and add only the secrets you actually need. Production secrets should remain dashboard-managed for now.
 
 For the fuller operational walkthrough, including GitHub/Vercel dashboard setup and fresh-computer bootstrap, see [docs/supabase-local-first.md](./docs/supabase-local-first.md).
 
@@ -98,7 +98,7 @@ For how auth/session forwarding, public-page performance, footer locale state, u
 1. Clone and set up codebase:
 
    ```bash
-   git clone https://github.com/dnywh/peels.git
+   git clone https://github.com/peels-org/peels.git
    cd peels
    npm install
    ```
@@ -313,9 +313,9 @@ Map changes are still a manual smoke-check area. When you touch `/map`, verify t
 
 ### Getting Help
 
-- Check existing [issues](https://github.com/dnywh/peels/issues) for known problems
-- Create a [new issue](https://github.com/dnywh/peels/issues/new) if you find a bug or have a feature request
-- Join our [discussion board](https://github.com/dnywh/peels/discussions) for anything else
+- Check existing [issues](https://github.com/peels-org/peels/issues) for known problems
+- Create a [new issue](https://github.com/peels-org/peels/issues/new) if you find a bug or have a feature request
+- Join our [discussion board](https://github.com/peels-org/peels/discussions) for anything else
 
 ## Forking Peels
 

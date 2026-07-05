@@ -27,7 +27,7 @@ export const NewsletterIssueTwoEmail = ({
   externalAudience,
 }: NewsletterIssueTwoEmailProps) => {
   const siteUrl = getPublicSiteUrl();
-  const repoUrl = "https://github.com/dnywh/peels";
+  const repoUrl = "https://github.com/peels-org/peels";
   const issueAssetUrl = `${staticAssetUrl}/newsletter/2`;
   return (
     <EmailBody
