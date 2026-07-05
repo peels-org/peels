@@ -13,6 +13,7 @@ type AvatarPairSmallest = "small" | "tiny";
 type AvatarPairWidth = "fixed";
 
 type AvatarPairListing = {
+  is_demo?: boolean;
   type?: "residential" | "community" | "business" | string;
   avatar?: string | null;
   owner_avatar?: string | null;

@@ -209,15 +209,7 @@ function ChatHeader({
         {/* Handle either listing avatar and owner avatar combo OR initiator's avatar */}
         <AvatarContainer>
           <AvatarPair
-            listing={
-              role === "initiator"
-                ? {
-                    type: listing.type ?? undefined,
-                    avatar: listing.avatar,
-                    owner_avatar: chatListing?.owner_avatar,
-                  }
-                : undefined
-            }
+            listing={role === "initiator" ? listing : undefined}
             profile={
               role === "owner"
                 ? { avatar: thread?.initiator_avatar }
