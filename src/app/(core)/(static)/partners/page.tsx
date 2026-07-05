@@ -59,7 +59,7 @@ export default async function PartnersPage() {
                   src={partner.logoSrc}
                   alt={t(partner.logoAltKey)}
                   width={240}
-                  height={180}
+                  height={240}
                   priority
                 />
               </PartnerLogoFrame>
@@ -178,16 +178,31 @@ const PartnerLogoFrame = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: min(100%, 14rem);
-  padding: 2.75rem;
+  width: 100%;
+  padding: 1.75rem 1rem;
   border-radius: calc(${theme.corners.base} * 0.75);
   background: ${theme.colors.background.slight};
   border: 1px solid ${theme.colors.border.light};
 
   & img {
     width: 100%;
+    max-width: 10rem;
     height: auto;
+    max-height: 4.5rem;
     object-fit: contain;
+  }
+
+  @media (min-width: 640px) {
+    width: min(100%, 14rem);
+    aspect-ratio: 1 / 1;
+    padding: 2.75rem;
+
+    & img {
+      width: auto;
+      height: auto;
+      max-width: 75%;
+      max-height: 75%;
+    }
   }
 `;
 

@@ -150,11 +150,10 @@
     },
     "partners": {
       "title": "In guter Gesellschaft",
-      "subtitle": "Peels wird von Kommunen aufgeführt und von Menschen unterstützt, die Community-Kompostierung leichter auffindbar machen.",
-      "listLabel": "Ausgewählte Partner und Erwähnungen durch Kommunen",
-      "loccalLogoAlt": "LOCCAL-Logo",
+      "subtitle": "Peels wird von lokalen Regierungen, Community-Partnern und der Presse empfohlen.",
+      "listLabel": "Ausgewählte Erwähnungen",
       "logoLinkLabel": "Alle Partner und Erwähnungen ansehen",
-      "footer": "Und viele mehr. <page>Alle unsere Partner</page> und Erwähnungen ansehen."
+      "footer": "Und viele mehr. Siehe unsere <page>Partner</page>-Seite für die vollständige Liste."
     },
     "faq": {
       "title": "Sie werden sich vielleicht wundern...",
@@ -164,30 +163,34 @@
   },
   "Partners": {
     "title": "Partner",
-    "subtitle": "Verbündete Kommunen und Community-Gruppen, die helfen, mehr Lebensmittelreste in Kompost statt auf Deponien zu bringen.",
-    "metaDescription": "Lerne die Community-Organisationen und Kommunen kennen, die Peels helfen, praktische Kompostierungsoptionen weiterzutragen.",
+    "subtitle": "Regierungen, Community-Partner und Publikationen, die mit Peels zusammenarbeiten, damit mehr Lebensmittelreste nicht auf der Deponie landen.",
+    "metaDescription": "Lerne die Regierungen, Community-Partner und Publikationen kennen, die Menschen auf Peels für praktische Kompostierungsoptionen hinweisen.",
     "communityPartners": {
       "title": "Community-Partner",
-      "subtitle": "Organisationen, die mehr Menschen helfen, praktische, community-getragene Kompostierungsoptionen zu entdecken.",
+      "subtitle": "Organisationen, die mehr Menschen helfen, praktische, community-getragene Kompostierung über Peels zu entdecken.",
       "visitPartner": "{name} besuchen",
       "loccal": {
         "logoAlt": "LOCCAL-Logo",
         "description": "Die Local Community Compost Alliance of Australia unterstützt gemeinschaftsgeführte und gemeinschaftlich betriebene Kompostierung in ganz Australien."
+      },
+      "responsiblecafes": {
+        "logoAlt": "Responsible Cafes-Logo",
+        "description": "Responsible Cafes verbindet umweltbewusste Australierinnen und Australier mit nachhaltigen Cafés, die Einwegmüll reduzieren."
       }
     },
     "councilMentions": {
-      "title": "Erwähnungen durch Kommunen",
-      "subtitle": "Diese Kommunen und Seiten des öffentlichen Sektors erwähnen Peels als Möglichkeit für Einwohnerinnen und Einwohner, Community-Kompostierung zu finden oder zu teilen.",
-      "listLabel": "Kommunen und Seiten des öffentlichen Sektors, die Peels erwähnen"
+      "title": "Erwähnungen durch Behörden",
+      "subtitle": "Lokale Regierungen, Bundesstaaten, Countys und Behörden, die Peels für Community-Kompostierung erwähnen.",
+      "listLabel": "Regierungen und Behörden, die Peels erwähnen"
     },
     "communityMediaMentions": {
       "title": "Highlights aus der Community",
-      "subtitle": "Diese Organisationen, Newsletter und Artikel helfen Menschen vor Ort, Peels zu finden.",
+      "subtitle": "Organisationen, Newsletter und Artikel, die Menschen helfen, Peels zu finden.",
       "listLabel": "Community-Organisationen, Newsletter und Artikel, die Peels erwähnen"
     },
     "cta": {
       "title": "Möchtest du Peels in deiner Community sehen?",
-      "body": "Beginne mit unserer <share>Teilen-Seite</share> oder <email>schreib uns</email>, wenn du etwas Spezifischeres für deine Kommune, Community-Gruppe oder Organisation brauchst."
+      "body": "Beginne mit unserer <share>Teilen</share>-Seite oder <email>schreib uns</email>, wenn du etwas Spezifischeres für deine Kommune, Community-Gruppe oder Organisation brauchst."
     }
   },
   "Share": {

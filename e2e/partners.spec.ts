@@ -15,9 +15,13 @@ test("partners page shows partner and council mention proof", async ({
     page.getByRole("link", { name: "Visit LOCCAL" })
   ).toHaveAttribute("href", "https://www.loccal.org.au/");
   await expect(page.getByAltText("LOCCAL logo")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Visit Responsible Cafes" })
+  ).toHaveAttribute("href", "https://responsiblecafes.org/");
+  await expect(page.getByAltText("Responsible Cafes logo")).toBeVisible();
 
   await expect(
-    page.getByRole("heading", { name: "Council mentions" })
+    page.getByRole("heading", { name: "Government mentions" })
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Waverley Council" })
@@ -28,13 +32,14 @@ test("partners page shows partner and council mention proof", async ({
   await expect(
     page.getByRole("link", { name: "Northern Beaches Council" })
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "State of California" })
+  ).toBeVisible();
 
   await expect(
     page.getByRole("heading", { name: "Community highlights" })
   ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Responsible Cafes" })
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "The Guardian" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Sustainable Gardening Australia" })
   ).toBeVisible();
@@ -44,10 +49,13 @@ test("partners page shows partner and council mention proof", async ({
   await expect(
     page.getByRole("link", { name: "How to Save Our Planet" })
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Share page" })).toHaveAttribute(
-    "href",
-    "/share"
-  );
+  await expect(
+    page.getByRole("link", { name: "Responsible Cafes" })
+  ).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "LOCCAL" })).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Share", exact: true })
+  ).toHaveAttribute("href", "/share");
 });
 
 test("homepage and footer link to partners", async ({ page }) => {
@@ -57,16 +65,21 @@ test("homepage and footer link to partners", async ({ page }) => {
     page.getByRole("heading", { name: "In good company" })
   ).toBeVisible();
   await expect(page.getByAltText("LOCCAL logo")).toBeVisible();
-  await expect(page.getByText("Community partner: LOCCAL")).toHaveCount(0);
+  await expect(page.getByAltText("Responsible Cafes logo")).toBeVisible();
+  await expect(page.getByText("Lenawee County, Michigan")).toBeVisible();
+  await expect(page.getByText("State of California")).toBeVisible();
+  await expect(page.getByText("The Guardian")).toBeHidden();
   await expect(page.getByText("Merri-bek City Council")).toBeVisible();
   await expect(page.getByText("Northern Beaches Council")).toBeVisible();
-  await expect(page.getByText("Waverley Council")).toBeVisible();
-  await expect(page.getByText("North Sydney Council")).toBeVisible();
+  await expect(page.getByText("Western Australian Government")).toBeHidden();
+  await expect(page.getByText("North Sydney Council")).toBeHidden();
   await expect(
     page.getByRole("link", { name: "See all partners and mentions" })
   ).toHaveAttribute("href", "/partners");
   await expect(
-    page.getByRole("link", { name: "See all our partners" })
+    page
+      .locator("#partners-section")
+      .getByRole("link", { name: "Partners", exact: true })
   ).toHaveAttribute("href", "/partners");
   await expect(
     page.getByRole("contentinfo").getByRole("link", { name: "Partners" })
