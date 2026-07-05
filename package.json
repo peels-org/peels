@@ -9,7 +9,7 @@
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
     "supabase:env": "supabase status -o env",
-    "supabase:reset": "supabase db reset",
+    "supabase:reset": "supabase db reset && npm run seed:local-media",
     "seed:local-media": "node scripts/seed-local-media.mjs",
     "media:cleanup-orphans": "node scripts/cleanup-orphaned-media.mjs",
     "supabase:diff": "supabase db diff",
