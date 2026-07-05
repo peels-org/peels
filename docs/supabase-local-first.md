@@ -216,7 +216,7 @@ Right now the changes are only in your working tree on `main`. The safe path is:
 Suggested branch name:
 
 ```bash
-git switch -c dnywh/supabase-local-first
+git switch -c your-handle/supabase-local-first
 ```
 
 Then review what is staged before committing:
