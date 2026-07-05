@@ -85,6 +85,62 @@ export function wrapLongitude(lng: number): number {
   return ((((lng + 180) % 360) + 360) % 360) - 180;
 }
 
+const DEFAULT_MAP_VIEWPORT_WIDTH = 1280;
+const DEFAULT_MAP_VIEWPORT_HEIGHT = 900;
+
+function createBounds(
+  west: number,
+  south: number,
+  east: number,
+  north: number
+): LngLatBounds {
+  return {
+    getSouthWest: () => ({ lat: south, lng: west }),
+    getNorthEast: () => ({ lat: north, lng: east }),
+    getCenter: () => ({
+      lng: wrapLongitude((west + east) / 2),
+      lat: (south + north) / 2,
+    }),
+    contains: (coordinate) => {
+      const lng = Array.isArray(coordinate)
+        ? coordinate[0]
+        : "lng" in coordinate
+          ? coordinate.lng
+          : coordinate.lon;
+      const lat = Array.isArray(coordinate) ? coordinate[1] : coordinate.lat;
+
+      return lat >= south && lat <= north && lng >= west && lng <= east;
+    },
+    getWest: () => west,
+    getEast: () => east,
+    getSouth: () => south,
+    getNorth: () => north,
+  } as LngLatBounds;
+}
+
+// Approximate the current viewport bounds from a saved map view before MapLibre
+// has finished loading. Search can use these immediately and refine them on idle.
+export function approximateBoundsFromViewState(
+  longitude: number,
+  latitude: number,
+  zoom: number,
+  width = DEFAULT_MAP_VIEWPORT_WIDTH,
+  height = DEFAULT_MAP_VIEWPORT_HEIGHT
+): LngLatBounds {
+  const scale = 512 * 2 ** zoom;
+  const lngDelta = (360 / scale) * (width / 2);
+  const latRad = (latitude * Math.PI) / 180;
+  const latDelta =
+    ((360 / scale) * (height / 2)) / Math.max(Math.cos(latRad), 0.01);
+
+  const south = Math.max(-90, latitude - latDelta);
+  const north = Math.min(90, latitude + latDelta);
+  const west = wrapLongitude(longitude - lngDelta);
+  const east = wrapLongitude(longitude + lngDelta);
+
+  return createBounds(west, south, east, north);
+}
+
 // Expand a viewport bbox by a fraction (e.g. 0.3 => 30% larger in each
 // direction). This lets us fetch a slightly padded area so that small pans
 // reuse already-loaded pins without hitting the network again.

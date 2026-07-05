@@ -188,6 +188,34 @@ async function main() {
     await uploadBucketObjects(supabase, bucketName, bucketConfig);
   }
 
+  const listingPhotoFixture = path.join(
+    repoRoot,
+    "supabase",
+    "storage",
+    "listing_photos",
+    "demo",
+    "garden.jpg"
+  );
+  const listingPhotoBody = readFileSync(listingPhotoFixture);
+
+  for (const photoName of ["one", "two", "three", "four", "five"]) {
+    const objectPath = `limit/${photoName}.jpg`;
+    const { error } = await supabase.storage
+      .from("listing_photos")
+      .upload(objectPath, listingPhotoBody, {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+
+    if (error) {
+      throw new Error(
+        `Failed to upload listing_photos/${objectPath}: ${error.message}`
+      );
+    }
+
+    console.log(`Uploaded listing_photos/${objectPath}`);
+  }
+
   console.log("Local demo media seeding complete.");
 }
 
