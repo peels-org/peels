@@ -60,7 +60,7 @@ jobs:
       - name: Start local Supabase stack
         run: supabase start
 
-      - name: Replay migrations and seed data
+      - name: Replay migrations, seed data, and demo media
         run: npm run supabase:reset
 
       - name: Write local app env
@@ -75,9 +75,6 @@ jobs:
           NEXT_PUBLIC_PROTOMAPS_API_KEY=playwright-local
           NEXT_PUBLIC_TURNSTILE_ENABLED=
           EOF
-
-      - name: Seed local demo media
-        run: npm run seed:local-media
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

@@ -413,6 +413,22 @@ test("anonymous residential avatars can use localised private-host alt text", ()
   assert.doesNotMatch(avatar?.alt ?? "", /Private Host/);
 });
 
+test("demo residential listings use bundled demo avatar paths", () => {
+  const avatar = getListingAvatar(
+    {
+      is_demo: true,
+      type: "residential",
+      owner_first_name: "Becca",
+      avatar: "sunflowers.jpg",
+    },
+    null
+  );
+
+  assert.equal(avatar?.isDemo, true);
+  assert.equal(avatar?.path, "/avatars/demo/sunflowers.jpg");
+  assert.match(avatar?.alt ?? "", /Becca/);
+});
+
 test("listing JSON-LD describes the public listing page and place conservatively", () => {
   const jsonLd = generateListingJsonLd(communityListing, null);
 
