@@ -58,7 +58,6 @@ const uniqueStorageRemotePatterns = storageRemotePatterns.filter(
 );
 
 const shouldAllowLocalStorageImages =
-  process.env.NODE_ENV === "development" ||
   process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("127.0.0.1") ||
   process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("localhost") ||
   false;
