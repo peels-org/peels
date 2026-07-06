@@ -54,64 +54,53 @@ test("promo-kit redirects to share", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("help page combines FAQ and contact options", async ({ page }) => {
-  await page.goto("/help", { waitUntil: "domcontentloaded" });
+test("contact page combines email and FAQ", async ({ page }) => {
+  await page.goto("/contact", { waitUntil: "domcontentloaded" });
 
   await expect(
-    page.getByRole("heading", { name: "Help", exact: true })
+    page.getByRole("heading", { level: 1, name: "Contact", exact: true })
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Using Peels" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "About Peels" })
-  ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Contact" })).toBeVisible();
   await expect(page.locator("#contact")).toBeVisible();
-  await expect(page.getByLabel("If you want to")).toBeVisible();
-
+  await expect(page.getByText("Email us at")).toBeVisible();
   await expect(
-    page.getByRole("contentinfo").getByRole("link", { name: "Help" })
-  ).toHaveAttribute("href", "/help");
+    page.getByRole("button", { name: "Copy address" })
+  ).toBeVisible();
+
+  const contactHeading = page.locator("#contact");
+  const usingPeelsHeading = page.getByRole("heading", { name: "Using Peels" });
+  await expect(contactHeading).toBeVisible();
+  await expect(usingPeelsHeading).toBeVisible();
+
+  const contactBox = await contactHeading.boundingBox();
+  const faqBox = await usingPeelsHeading.boundingBox();
+  expect(contactBox?.y).toBeLessThan(faqBox?.y ?? 0);
+
   await expect(
     page.getByRole("contentinfo").getByRole("link", { name: "Contact" })
-  ).toHaveCount(0);
+  ).toHaveAttribute("href", "/contact");
 });
 
-test("contact redirects to the help contact anchor", async ({ page }) => {
-  const redirectResponse = await page.request.get(
-    "/contact?address=support&utm_source=old-contact",
-    {
-      maxRedirects: 0,
-    }
-  );
+test("help redirects to contact", async ({ page }) => {
+  const redirectResponse = await page.request.get("/help?utm_source=old-help", {
+    maxRedirects: 0,
+  });
 
   expect(redirectResponse.status()).toBe(308);
   expect(redirectResponse.headers().location).toMatch(
-    /\/help\?address=support&utm_source=old-contact#contact$/
+    /\/contact\?utm_source=old-help$/
   );
 
-  await page.goto("/contact?address=support&utm_source=old-contact", {
+  await page.goto("/help?utm_source=old-help", {
     waitUntil: "domcontentloaded",
   });
 
-  await expect(page).toHaveURL(
-    /\/help\?address=support&utm_source=old-contact#contact$/
-  );
-  await expect(page.locator("#contact")).toBeVisible();
-  await expect(page.locator("select#contact-address")).toHaveValue("support");
+  await expect(page).toHaveURL(/\/contact\?utm_source=old-help$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Contact", exact: true })
+  ).toBeVisible();
 });
 
-test("contact ignores old source-specific routes", async ({ page }) => {
-  await page.goto("/contact?via=therot", {
-    waitUntil: "domcontentloaded",
-  });
-
-  await expect(page).toHaveURL(/\/help\?via=therot#contact$/);
-  await expect(page.locator("select#contact-address")).toHaveValue("general");
-});
-
-test("support redirects to help", async ({ page }) => {
+test("support redirects to contact", async ({ page }) => {
   const redirectResponse = await page.request.get(
     "/support?address=support&utm_source=old-support",
     {
@@ -121,7 +110,7 @@ test("support redirects to help", async ({ page }) => {
 
   expect(redirectResponse.status()).toBe(308);
   expect(redirectResponse.headers().location).toMatch(
-    /\/help\?address=support&utm_source=old-support$/
+    /\/contact\?address=support&utm_source=old-support$/
   );
 
   await page.goto("/support?address=support&utm_source=old-support", {
@@ -129,15 +118,15 @@ test("support redirects to help", async ({ page }) => {
   });
 
   await expect(page).toHaveURL(
-    /\/help\?address=support&utm_source=old-support$/
+    /\/contact\?address=support&utm_source=old-support$/
   );
   await expect(
-    page.getByRole("heading", { name: "Help", exact: true })
+    page.getByRole("heading", { level: 1, name: "Contact", exact: true })
   ).toBeVisible();
 });
 
-test("help promotion FAQ links to share", async ({ page }) => {
-  await page.goto("/help", { waitUntil: "domcontentloaded" });
+test("contact promotion FAQ links to share", async ({ page }) => {
+  await page.goto("/contact", { waitUntil: "domcontentloaded" });
 
   await page.getByText("How can I promote Peels to my community?").click();
 

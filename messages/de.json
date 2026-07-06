@@ -159,7 +159,7 @@
     "faq": {
       "title": "Sie werden sich vielleicht wundern...",
       "subtitle": "Besteht das nicht bereits? Was ist deine Mission? Du hast Fragen, wir haben (hoffentlich) Antworten bekommen.",
-      "footer": "Noch Fragen? <page>Wir helfen gern</page>."
+      "footer": "Noch Fragen? <page>Melden Sie sich</page>."
     }
   },
   "Partners": {
@@ -571,9 +571,9 @@
     "body": "Entschuldigung, wir konnten die gesuchte Seite nicht finden."
   },
   "Support": {
-    "title": "Hilfe",
-    "metaDescription": "Antworten und Kontaktmöglichkeiten, wenn du Hilfe mit Peels brauchst.",
-    "subtitle": "Hier findest du Antworten auf häufige Fragen und unten Kontaktmöglichkeiten, wenn du Hilfe brauchst.",
+    "title": "Kontakt",
+    "metaDescription": "Antworten und Kontaktmöglichkeiten für Peels.",
+    "subtitle": "Schreib uns oben, wenn du Hilfe brauchst, oder stöbere in den FAQs unten nach häufigen Fragen.",
     "peelsFaq": {
       "title": "Über Peels",
       "communityTitle": "Community und Partner",
@@ -640,15 +640,7 @@
   },
   "Contact": {
     "title": "Kontakt",
-    "subtitle": "So erreichst du das Peels-Team.",
-    "contactLabel": "Wenn du",
-    "contactOptions": {
-      "general": "Eine allgemeine Anfrage stellen möchtest",
-      "support": "Hilfe bei etwas brauchst",
-      "dw": "Mit Danny sprechen möchtest",
-      "newsletter": "Über den Newsletter sprechen möchtest"
-    },
-    "emailLabel": "Am besten schreibst du an",
+    "emailLabel": "Schreib uns an",
     "copyButton": {
       "copied": "Kopiert",
       "copying": "Wird kopiert...",

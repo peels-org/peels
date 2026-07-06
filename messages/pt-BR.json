@@ -159,7 +159,7 @@
     "faq": {
       "title": "Talvez você esteja se perguntando...",
       "subtitle": "Isso já não existe? Qual é a missão do Peels? Você tem perguntas, e nós temos, esperamos, respostas.",
-      "footer": "Ainda tem perguntas? <page>Estamos aqui para ajudar</page>."
+      "footer": "Ainda tem perguntas? <page>Entre em contato</page>."
     }
   },
   "Partners": {
@@ -571,9 +571,9 @@
     "body": "Desculpe, não encontrámos a página que você procurava."
   },
   "Support": {
-    "title": "Ajuda",
-    "metaDescription": "Respostas e opções de contato para receber ajuda com o Peels.",
-    "subtitle": "Encontre respostas para perguntas frequentes ou use as opções de contato abaixo se precisar de ajuda.",
+    "title": "Contato",
+    "metaDescription": "Respostas e opções de contato para o Peels.",
+    "subtitle": "Envie um e-mail acima se precisar de ajuda, ou consulte as perguntas frequentes abaixo.",
     "peelsFaq": {
       "title": "Sobre o Peels",
       "communityTitle": "Comunidade e parceiros",
@@ -640,15 +640,7 @@
   },
   "Contact": {
     "title": "Contato",
-    "subtitle": "Veja como falar com a equipe do Peels.",
-    "contactLabel": "Se quiser",
-    "contactOptions": {
-      "general": "Fazer uma pergunta geral",
-      "support": "Pedir ajuda com algo",
-      "dw": "Falar com o Danny",
-      "newsletter": "Falar sobre o boletim"
-    },
-    "emailLabel": "O melhor é escrever para",
+    "emailLabel": "Envie um e-mail para",
     "copyButton": {
       "copied": "Copiado!",
       "copying": "Copiando...",

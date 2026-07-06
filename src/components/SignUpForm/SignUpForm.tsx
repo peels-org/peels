@@ -212,7 +212,7 @@ export default function SignUpForm({
               ? t.rich("Auth.signUp.errorWithSupport", {
                   error: error.endsWith(".") ? error : `${error}.`,
                   link: (chunks) => (
-                    <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+                    <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                       {chunks}
                     </EncodedEmailLink>
                   ),

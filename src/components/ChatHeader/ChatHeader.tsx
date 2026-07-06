@@ -259,7 +259,7 @@ function ChatHeader({
                 {t.rich("Chat.reportBody", {
                   name: otherPersonName,
                   link: (chunks: ReactNode) => (
-                    <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+                    <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                       {chunks}
                     </EncodedEmailLink>
                   ),

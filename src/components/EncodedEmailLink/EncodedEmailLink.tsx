@@ -3,6 +3,7 @@
 import Link from "next/link";
 import StrongLink from "@/components/StrongLink";
 import type { PropsWithChildren } from "react";
+import { decodeEncodedEmail } from "@/utils/email";
 
 type EncodedEmailLinkProps = PropsWithChildren<{
   as?: "plain" | "strong";
@@ -14,7 +15,7 @@ export default function EncodedEmailLink({
   address,
   children,
 }: EncodedEmailLinkProps) {
-  const decodedEmail = atob(address);
+  const decodedEmail = decodeEncodedEmail(address);
 
   if (as === "plain") {
     return <Link href={`mailto:${decodedEmail}`}>{children}</Link>;

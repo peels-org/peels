@@ -74,7 +74,7 @@ function ListingCta({
           <p>
             {t.rich("Listings.read.stubClaim", {
               link: (chunks) => (
-                <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+                <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                   {chunks}
                 </EncodedEmailLink>
               ),

@@ -328,7 +328,7 @@ values
     array['Fruit scraps', 'Vegetable peels', 'Coffee grounds'],
     array['Meat', 'Dairy', 'Plastic bags'],
     array['demo/caddy.jpg', 'demo/garden.jpg'],
-    array['https://www.peels.org/help'],
+    array['https://www.peels.org/contact'],
     true,
     'community',
     'demo/farm.jpg',

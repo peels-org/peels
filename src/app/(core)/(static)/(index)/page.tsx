@@ -134,7 +134,7 @@ export default function Index() {
           <p>
             {t.rich("faq.footer", {
               page: (chunks) => (
-                <Link href={siteConfig.links.help}>{chunks}</Link>
+                <Link href={siteConfig.links.contact}>{chunks}</Link>
               ),
             })}
           </p>

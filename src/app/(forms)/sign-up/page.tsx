@@ -61,7 +61,7 @@ export default async function SignUp(props: {
             {t("SignUp.footer.neverGotEmail")}{" "}
             {/* TODO: Allow for verification email to be resent to {searchParams.email} after a countdown,
                 before this 'reach out'becomes an option. */}
-            <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+            <EncodedEmailLink address={siteConfig.encodedEmail.team}>
               {t("SignUp.footer.reachOut")}
             </EncodedEmailLink>{" "}
             {t("SignUp.footer.stillNeedHelp")}

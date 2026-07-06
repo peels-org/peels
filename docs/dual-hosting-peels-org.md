@@ -34,10 +34,11 @@ Done:
 - Share-page copy examples use `peels.org`.
 - DMARC monitor on `_dmarc.peels.org` at `p=none` with Cloudflare aggregate
   reporting (keep the `rua` address in DNS only, not in the repo).
-- `siteConfig.encodedEmail` shows `@peels.org` contact addresses on the help
-  page, legal pages, and other public mailto links.
-- `@peels.org` inbound mailboxes are live on Migadu (`support`, `team`, `danny`,
-  `newsletter`, and other local parts as needed).
+- `siteConfig.encodedEmail` shows the public `team` contact address on the
+  `/contact` page, legal pages, and other public mailto links.
+- `@peels.org` inbound mail on Migadu uses `team` as the shared volunteer inbox;
+  legacy local parts (`support`, `danny`, `newsletter`, and others) can forward
+  there for old links and printed material.
 - `defaultAppOrigin` is `https://www.peels.org` in app and Edge Function redirect
   helpers; `.app` remains in the supported allow-list only.
 
@@ -75,9 +76,9 @@ high-volume transactional mail from Resend.
 
 **Do now**
 
-- **`@peels.org` on Migadu** is set up for low-volume personal / manual mail —
-  partner replies, support, one-to-one outreach. Keep using it to build real,
-  human sending history on the domain.
+- **`@peels.org` on Migadu** is set up for low-volume volunteer / manual mail —
+  partner replies, support enquiries, and one-to-one outreach via the shared
+  `team` inbox. Keep using it to build real, human sending history on the domain.
 - Use **`@peels.org` in new signatures and partner comms** so outbound human mail
   consistently comes from the new domain.
 - Optional: forward each **`@peels.app` mailbox** to the matching `@peels.org`

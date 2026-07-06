@@ -114,7 +114,7 @@ async function PeelsFaq({ variant = "full" }: PeelsFaqProps) {
                 </StrongLink>
               ),
               email: (chunks) => (
-                <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+                <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                   {chunks}
                 </EncodedEmailLink>
               ),
@@ -128,7 +128,7 @@ async function PeelsFaq({ variant = "full" }: PeelsFaqProps) {
                 <StrongLink href={siteConfig.links.share}>{chunks}</StrongLink>
               ),
               email: (chunks) => (
-                <EncodedEmailLink address={siteConfig.encodedEmail.general}>
+                <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                   {chunks}
                 </EncodedEmailLink>
               ),
@@ -147,7 +147,7 @@ async function PeelsFaq({ variant = "full" }: PeelsFaqProps) {
                 <StrongLink href={siteConfig.links.share}>{chunks}</StrongLink>
               ),
               email: (chunks) => (
-                <EncodedEmailLink address={siteConfig.encodedEmail.general}>
+                <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                   {chunks}
                 </EncodedEmailLink>
               ),

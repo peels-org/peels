@@ -148,7 +148,7 @@ test("public static pages expose canonical social metadata", async ({
   for (const { path, title } of [
     { path: "/map", title: "Map · Peels" },
     { path: "/newsletter", title: "Newsletter · Peels" },
-    { path: "/help", title: "Help · Peels" },
+    { path: "/contact", title: "Contact · Peels" },
     { path: "/partners", title: "Partners · Peels" },
     { path: "/share", title: "Share · Peels" },
   ]) {
@@ -501,10 +501,10 @@ test("signed-in private pages keep noindex metadata and route-specific titles", 
   await expectSharedSocialMetadata(page, `/chats/${SEEDED_THREAD_ID}`);
 });
 
-test("help page emits FAQPage JSON-LD for visible help questions", async ({
+test("contact page emits FAQPage JSON-LD for visible contact questions", async ({
   page,
 }) => {
-  await page.goto("/help", { waitUntil: "domcontentloaded" });
+  await page.goto("/contact", { waitUntil: "domcontentloaded" });
 
   const jsonLdScripts = await getListingJsonLdScripts(page);
   const faqJsonLd = parseJsonLdScripts(jsonLdScripts).find(
