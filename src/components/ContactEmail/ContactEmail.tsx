@@ -6,6 +6,7 @@ import { siteConfig } from "@/config/site";
 import EncodedEmailLink from "@/components/EncodedEmailLink";
 import DecodedSpan from "@/components/DecodedSpan";
 import Button from "@/components/Button";
+import Form from "@/components/Form";
 import PostageStamp from "@/components/PostageStamp";
 import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
@@ -36,7 +37,7 @@ export default function ContactEmail() {
   };
 
   return (
-    <FormSection>
+    <FormSection as="container">
       <PostageStamp />
       <EmailBlock>
         <EmailLabelText>{t("emailLabel")}</EmailLabelText>
@@ -61,7 +62,7 @@ export default function ContactEmail() {
   );
 }
 
-const FormSection = styled.div`
+const FormSection = styled(Form)`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -71,6 +72,7 @@ const FormSection = styled.div`
   border: 1px solid ${theme.colors.border.base};
   overflow: hidden;
   position: relative;
+  width: 100%;
 `;
 
 const EmailBlock = styled.div`

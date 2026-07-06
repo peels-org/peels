@@ -6,12 +6,11 @@ import StaticPageSection from "@/components/StaticPageSection";
 import Link from "next/link";
 import HeaderBlock from "@/components/HeaderBlock";
 import FooterBlock from "@/components/FooterBlock";
+import AboveTheFoldSection from "@/components/AboveTheFoldSection";
 import StaticPageMain from "@/components/StaticPageMain";
-import { styled } from "next-yak";
 import { getLocale, getTranslations } from "next-intl/server";
 import { defaultLocale } from "@/i18n/config";
 import { createPeelsMetadata } from "@/utils/seo";
-import { theme } from "@/styles/theme.yak";
 
 export async function generateMetadata() {
   const locale = await getLocale();
@@ -67,15 +66,3 @@ export default async function NewsletterPage() {
     </StaticPageMain>
   );
 }
-
-const AboveTheFoldSection = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: ${theme.spacing.container.maxWidth.media};
-  gap: ${theme.spacing.gap.section.md};
-  @media (min-width: 768px) {
-    gap: ${theme.spacing.gap.section.lg};
-  }
-`;

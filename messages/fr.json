@@ -157,9 +157,9 @@
       "footer": "Et bien d’autres. <page>Voir tous nos partenaires</page> et mentions."
     },
     "faq": {
-      "title": "Vous vous demandez peut-être...",
-      "subtitle": "Ça n’existe pas déjà ? Quelle est votre mission ? Vous avez des questions, nous avons, espérons-le, des réponses.",
-      "footer": "Encore des questions ? <page>Contactez-nous</page>."
+      "title": "Vous vous demandez peut-être",
+      "subtitle": "Comment fonctionne Peels ? Qui est derrière le projet, et pour qui est-il ? Voici quelques réponses.",
+      "footer": "Encore des questions ? <page>Lire la suite</page> pour en savoir plus."
     }
   },
   "Partners": {
@@ -573,7 +573,7 @@
   "Support": {
     "title": "Contact",
     "metaDescription": "Réponses et options de contact pour Peels.",
-    "subtitle": "Écrivez-nous ci-dessus si vous avez besoin d’aide, ou parcourez les FAQ ci-dessous pour les questions courantes.",
+    "subtitle": "N’hésitez pas à nous écrire pour toute question, ou parcourez les FAQ ci-dessous pour les réponses aux bases.",
     "peelsFaq": {
       "title": "À propos de Peels",
       "communityTitle": "Communauté et partenaires",
@@ -632,10 +632,6 @@
         "question": "Comment gérer les e-mails que je reçois ?",
         "answer": "<p>Peels envoie les e-mails de compte et de messagerie nécessaires au bon fonctionnement du service, notamment les e-mails de connexion et les notifications quand un autre membre vous envoie un message.</p><p>L’infolettre est séparée et optionnelle. Vous pouvez vous y abonner ou vous en désabonner à tout moment depuis votre page Profil.</p><p>Si vous hébergez une annonce, les notifications de messages sont nécessaires pour que les personnes intéressées puissent vous joindre. Vous pouvez arrêter les nouvelles demandes en masquant votre annonce de la carte ou en la supprimant.</p><p>Vous pouvez aussi signaler ou bloquer des membres de Peels depuis la messagerie.</p>"
       }
-    },
-    "contact": {
-      "title": "Contact",
-      "subtitle": "Nous serions ravi·es d’avoir de vos nouvelles."
     }
   },
   "Contact": {

@@ -8,6 +8,7 @@ import SupportFaq from "@/components/SupportFaq";
 import PeelsFaq from "@/components/PeelsFaq";
 import HeaderBlock from "@/components/HeaderBlock";
 import ContactEmail from "@/components/ContactEmail/ContactEmail";
+import AboveTheFoldSection from "@/components/AboveTheFoldSection";
 import { HelpFaqJsonLd } from "@/components/FaqJsonLd/FaqJsonLd";
 import { createPeelsMetadata } from "@/utils/seo";
 
@@ -37,16 +38,12 @@ export default function Contact() {
   return (
     <StaticPageMain>
       <HelpFaqJsonLd />
-      <StaticPageHeader title={t("title")} subtitle={t("subtitle")} />
-
-      <StaticPageSection id="contact" padding={null}>
-        <HeaderBlock>
-          <p>{t("contact.subtitle")}</p>
-        </HeaderBlock>
+      <AboveTheFoldSection id="contact">
+        <StaticPageHeader title={t("title")} subtitle={t("subtitle")} />
         <ContactEmail />
-      </StaticPageSection>
+      </AboveTheFoldSection>
 
-      <StaticPageSection>
+      <StaticPageSection id="faqs">
         <HeaderBlock>
           <h2>{t("supportFaq.title")}</h2>
         </HeaderBlock>

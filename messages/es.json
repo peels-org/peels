@@ -157,9 +157,9 @@
       "footer": "Y muchas más. <page>Ver todos nuestros socios</page> y menciones."
     },
     "faq": {
-      "title": "Quizás te preguntes...",
-      "subtitle": "¿Esto no existe ya? ¿Cuál es nuestra misión? Tienes preguntas, y (esperamos) tenemos respuestas.",
-      "footer": "¿Te queda alguna pregunta? <page>Ponte en contacto</page>."
+      "title": "Quizás te preguntes",
+      "subtitle": "¿Cómo funciona Peels? ¿Quién está detrás y para quién es? Aquí tienes algunas respuestas.",
+      "footer": "¿Te queda alguna pregunta? <page>Sigue leyendo</page> para más."
     }
   },
   "Partners": {
@@ -573,7 +573,7 @@
   "Support": {
     "title": "Contacto",
     "metaDescription": "Respuestas y opciones de contacto para Peels.",
-    "subtitle": "Escríbenos arriba si necesitas ayuda, o consulta las preguntas frecuentes más abajo.",
+    "subtitle": "Escríbenos con total libertad sobre cualquier tema, o consulta las FAQs de abajo para las respuestas básicas.",
     "peelsFaq": {
       "title": "Acerca de Peels",
       "communityTitle": "Comunidad y socios",
@@ -632,10 +632,6 @@
         "question": "¿Cómo puedo administrar qué correos recibo?",
         "answer": "<p>Peels envía correos de cuenta y mensajes necesarios para que el servicio funcione, incluidos correos de inicio de sesión y avisos cuando otro miembro te envía un mensaje.</p><p>El boletín es separado y opcional. Puedes suscribirte o cancelar la suscripción en cualquier momento desde tu página de Perfil.</p><p>Si tienes un anuncio, las notificaciones de mensajes son necesarias para que las personas interesadas puedan contactarte. Puedes detener nuevas consultas ocultando tu anuncio del mapa o eliminándolo.</p><p>También puedes denunciar o bloquear a otros miembros de Peels desde el sistema de mensajería.</p>"
       }
-    },
-    "contact": {
-      "title": "Contacto",
-      "subtitle": "Nos encantará saber de ti."
     }
   },
   "Contact": {

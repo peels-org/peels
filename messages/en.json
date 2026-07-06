@@ -157,9 +157,9 @@
       "footer": "And so many more. <page>See all our partners</page> and mentions."
     },
     "faq": {
-      "title": "You might be wondering...",
-      "subtitle": "Doesn’t this already exist? What’s your mission? You’ve got questions, we’ve (hopefully) got answers.",
-      "footer": "Still have questions? <page>Get in touch</page>."
+      "title": "You might be wondering",
+      "subtitle": "How does Peels work? Who’s behind it, and who is it for? Here are some answers.",
+      "footer": "Still have questions? <page>Read on</page> for more."
     }
   },
   "Partners": {
@@ -573,7 +573,7 @@
   "Support": {
     "title": "Contact",
     "metaDescription": "Answers and contact options for Peels.",
-    "subtitle": "Email us above if you need a hand, or browse the FAQs below for common questions.",
+    "subtitle": "Feel free to email us about anything, or browse the FAQs below for answers to the basics.",
     "peelsFaq": {
       "title": "About Peels",
       "communityTitle": "Community and partners",
@@ -632,10 +632,6 @@
         "question": "How do I manage which emails I receive?",
         "answer": "<p>Peels sends account and message emails that are necessary to keep the service working, including sign-in emails and notifications when another member messages you.</p><p>The newsletter is separate and optional. You can subscribe or unsubscribe at any time from your Profile page.</p><p>If you host a listing, message notifications are required so prospective donors can reach you. You can stop new enquiries by hiding your listing from the map or deleting it.</p><p>You can also report or block individual Peels members via the messaging system.</p>"
       }
-    },
-    "contact": {
-      "title": "Contact",
-      "subtitle": "We’d love to hear from you."
     }
   },
   "Contact": {
