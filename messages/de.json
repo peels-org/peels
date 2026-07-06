@@ -157,9 +157,9 @@
       "footer": "Und viele mehr. <page>Alle unsere Partner</page> und Erwähnungen ansehen."
     },
     "faq": {
-      "title": "Sie werden sich vielleicht wundern...",
-      "subtitle": "Besteht das nicht bereits? Was ist deine Mission? Du hast Fragen, wir haben (hoffentlich) Antworten bekommen.",
-      "footer": "Noch Fragen? <page>Wir helfen gern</page>."
+      "title": "Du fragst dich vielleicht",
+      "subtitle": "Wie funktioniert Peels? Wer steckt dahinter, und für wen ist es gedacht? Hier sind einige Antworten.",
+      "footer": "Noch Fragen? <page>Weiterlesen</page> für mehr."
     }
   },
   "Partners": {
@@ -571,9 +571,9 @@
     "body": "Entschuldigung, wir konnten die gesuchte Seite nicht finden."
   },
   "Support": {
-    "title": "Hilfe",
-    "metaDescription": "Antworten und Kontaktmöglichkeiten, wenn du Hilfe mit Peels brauchst.",
-    "subtitle": "Hier findest du Antworten auf häufige Fragen und unten Kontaktmöglichkeiten, wenn du Hilfe brauchst.",
+    "title": "Kontakt",
+    "metaDescription": "Antworten und Kontaktmöglichkeiten für Peels.",
+    "subtitle": "Schreib uns gern zu jedem Anliegen, oder stöbere in den FAQs unten nach Antworten auf die Grundlagen.",
     "peelsFaq": {
       "title": "Über Peels",
       "communityTitle": "Community und Partner",
@@ -632,23 +632,11 @@
         "question": "Wie verwalte ich, welche E-Mails ich erhalte?",
         "answer": "<p>Peels sendet Konto- und Nachrichten-E-Mails, die nötig sind, damit der Dienst funktioniert, darunter Anmelde-E-Mails und Benachrichtigungen, wenn dir ein anderes Mitglied schreibt.</p><p>Der Newsletter ist getrennt davon und optional. Du kannst ihn jederzeit auf deiner Profilseite abonnieren oder abbestellen.</p><p>Wenn du einen Eintrag hostest, sind Nachrichtenbenachrichtigungen nötig, damit interessierte Spenderinnen und Spender dich erreichen können. Du kannst neue Anfragen stoppen, indem du deinen Eintrag von der Karte verbirgst oder löschst.</p><p>Du kannst einzelne Peels-Mitglieder ausserdem über das Nachrichtensystem melden oder blockieren.</p>"
       }
-    },
-    "contact": {
-      "title": "Kontakt",
-      "subtitle": "Wir freuen uns, von dir zu hören."
     }
   },
   "Contact": {
     "title": "Kontakt",
-    "subtitle": "So erreichst du das Peels-Team.",
-    "contactLabel": "Wenn du",
-    "contactOptions": {
-      "general": "Eine allgemeine Anfrage stellen möchtest",
-      "support": "Hilfe bei etwas brauchst",
-      "dw": "Mit Danny sprechen möchtest",
-      "newsletter": "Über den Newsletter sprechen möchtest"
-    },
-    "emailLabel": "Am besten schreibst du an",
+    "emailLabel": "Schreib uns an",
     "copyButton": {
       "copied": "Kopiert",
       "copying": "Wird kopiert...",

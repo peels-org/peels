@@ -80,7 +80,7 @@ export default function ProfileActions({
         >
           {t.rich("Profile.actions.exportDialog", {
             link: (chunks) => (
-              <EncodedEmailLink address={siteConfig.encodedEmail.support}>
+              <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                 {chunks}
               </EncodedEmailLink>
             ),

@@ -120,7 +120,7 @@ export default async function PartnersPage() {
                 <StrongLink href={siteConfig.links.share}>{chunks}</StrongLink>
               ),
               email: (chunks) => (
-                <EncodedEmailLink address={siteConfig.encodedEmail.general}>
+                <EncodedEmailLink address={siteConfig.encodedEmail.team}>
                   {chunks}
                 </EncodedEmailLink>
               ),

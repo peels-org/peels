@@ -8,19 +8,17 @@ export const siteConfig = {
     newsletter: "/newsletter",
     partners: "/partners",
     share: "/share",
-    help: "/help",
+    contact: "/contact",
+    help: "/contact",
     terms: "/terms",
     privacy: "/privacy",
-    support: "/help",
-    contact: "/help#contact",
+    support: "/contact",
     colophon: "/colophon",
     join: "/sign-up",
   },
   encodedEmail: {
-    support: "c3VwcG9ydEBwZWVscy5vcmc=",
+    team: "dGVhbUBwZWVscy5vcmc=",
     dw: "ZGFubnlAcGVlbHMub3Jn",
-    general: "dGVhbUBwZWVscy5vcmc=",
-    newsletter: "bmV3c2xldHRlckBwZWVscy5vcmc=",
   },
   meta: {
     explainer:

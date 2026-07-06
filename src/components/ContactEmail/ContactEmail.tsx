@@ -1,49 +1,24 @@
 "use client";
+
 import { theme } from "@/styles/theme.yak";
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { siteConfig } from "@/config/site";
 import EncodedEmailLink from "@/components/EncodedEmailLink";
 import DecodedSpan from "@/components/DecodedSpan";
 import Button from "@/components/Button";
 import Form from "@/components/Form";
-import Field from "@/components/Field";
-import Label from "@/components/Label";
-import Select from "@/components/Select";
 import PostageStamp from "@/components/PostageStamp";
 import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
+import { decodeEncodedEmail } from "@/utils/email";
 
-type EmailType = "support" | "dw" | "general" | "newsletter";
 type CopyStatus = "idle" | "copying" | "copied" | "error";
 
-export default function EmailSelector() {
-  const searchParams = useSearchParams();
+const teamEmail = siteConfig.encodedEmail.team;
+
+export default function ContactEmail() {
   const t = useTranslations("Contact");
-  const address = searchParams.get("address");
-
-  const requestedAddress = address ?? "general";
-
-  // Validate the final address against valid options
-  const validAddresses: EmailType[] = [
-    "support",
-    "dw",
-    "general",
-    "newsletter",
-  ];
-  const validatedAddress = validAddresses.includes(
-    requestedAddress as EmailType
-  )
-    ? (requestedAddress as EmailType)
-    : "general";
-
-  const [selectedEmailType, setSelectedEmailType] = useState(validatedAddress);
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
-
-  // Reset isCopied when selectedEmailType changes
-  useEffect(() => {
-    setCopyStatus("idle");
-  }, [selectedEmailType]);
 
   const handleCopy = async () => {
     if (copyStatus === "copying") return;
@@ -51,9 +26,7 @@ export default function EmailSelector() {
     setCopyStatus("copying");
     try {
       await Promise.all([
-        navigator.clipboard.writeText(
-          atob(siteConfig.encodedEmail[selectedEmailType])
-        ),
+        navigator.clipboard.writeText(decodeEncodedEmail(teamEmail)),
         new Promise((resolve) => setTimeout(resolve, 150)),
       ]);
       setCopyStatus("copied");
@@ -64,35 +37,13 @@ export default function EmailSelector() {
   };
 
   return (
-    <FormSection>
+    <FormSection as="container">
       <PostageStamp />
-      <SubSectionTop>
-        <Field>
-          <Label htmlFor="contact-address">{t("contactLabel")}</Label>
-          <Select
-            id="contact-address"
-            value={selectedEmailType}
-            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-              setSelectedEmailType(event.target.value as EmailType)
-            }
-            required={true}
-          >
-            <option value="general">{t("contactOptions.general")}</option>
-            <option value="support">{t("contactOptions.support")}</option>
-            <option value="dw">{t("contactOptions.dw")}</option>
-            <option value="newsletter">{t("contactOptions.newsletter")}</option>
-          </Select>
-        </Field>
-      </SubSectionTop>
-      <SubSectionBottom>
+      <EmailBlock>
         <EmailLabelText>{t("emailLabel")}</EmailLabelText>
         <EmailActionRow>
-          <EncodedEmailLink
-            address={siteConfig.encodedEmail[selectedEmailType]}
-          >
-            <DecodedSpan>
-              {siteConfig.encodedEmail[selectedEmailType]}
-            </DecodedSpan>
+          <EncodedEmailLink address={teamEmail}>
+            <DecodedSpan>{teamEmail}</DecodedSpan>
           </EncodedEmailLink>
           <Button
             onClick={handleCopy}
@@ -106,7 +57,7 @@ export default function EmailSelector() {
                 : t("copyButton.copyAddress")}
           </Button>
         </EmailActionRow>
-      </SubSectionBottom>
+      </EmailBlock>
     </FormSection>
   );
 }
@@ -121,19 +72,10 @@ const FormSection = styled(Form)`
   border: 1px solid ${theme.colors.border.base};
   overflow: hidden;
   position: relative;
+  width: 100%;
 `;
 
-const SubSectionTop = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  & > p {
-    margin-right: 8.5rem;
-    text-wrap: balance;
-  }
-`;
-
-const SubSectionBottom = styled.div`
+const EmailBlock = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;

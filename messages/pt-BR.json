@@ -157,9 +157,9 @@
       "footer": "E muitas outras. <page>Veja todos os nossos parceiros</page> e menções."
     },
     "faq": {
-      "title": "Talvez você esteja se perguntando...",
-      "subtitle": "Isso já não existe? Qual é a missão do Peels? Você tem perguntas, e nós temos, esperamos, respostas.",
-      "footer": "Ainda tem perguntas? <page>Estamos aqui para ajudar</page>."
+      "title": "Talvez você esteja se perguntando",
+      "subtitle": "Como o Peels funciona? Quem está por trás e para quem é? Aqui estão algumas respostas.",
+      "footer": "Ainda tem perguntas? <page>Leia mais</page>."
     }
   },
   "Partners": {
@@ -571,9 +571,9 @@
     "body": "Desculpe, não encontrámos a página que você procurava."
   },
   "Support": {
-    "title": "Ajuda",
-    "metaDescription": "Respostas e opções de contato para receber ajuda com o Peels.",
-    "subtitle": "Encontre respostas para perguntas frequentes ou use as opções de contato abaixo se precisar de ajuda.",
+    "title": "Contato",
+    "metaDescription": "Respostas e opções de contato para o Peels.",
+    "subtitle": "Fique à vontade para nos escrever sobre qualquer assunto, ou consulte as FAQs abaixo para as respostas básicas.",
     "peelsFaq": {
       "title": "Sobre o Peels",
       "communityTitle": "Comunidade e parceiros",
@@ -632,23 +632,11 @@
         "question": "Como eu gerencio quais e-mails recebo?",
         "answer": "<p>O Peels envia e-mails de conta e mensagens necessários para o serviço funcionar, incluindo e-mails de login e notificações quando outro membro envia uma mensagem para você.</p><p>O boletim é separado e opcional. Você pode assinar ou cancelar a assinatura a qualquer momento na página de Perfil.</p><p>Se você hospeda um anúncio, as notificações de mensagens são necessárias para que pessoas interessadas possam falar com você. Você pode parar novas consultas ocultando o anúncio do mapa ou excluindo-o.</p><p>Você também pode denunciar ou bloquear membros do Peels pelo sistema de mensagens.</p>"
       }
-    },
-    "contact": {
-      "title": "Contato",
-      "subtitle": "Adoraríamos ouvir de você."
     }
   },
   "Contact": {
     "title": "Contato",
-    "subtitle": "Veja como falar com a equipe do Peels.",
-    "contactLabel": "Se quiser",
-    "contactOptions": {
-      "general": "Fazer uma pergunta geral",
-      "support": "Pedir ajuda com algo",
-      "dw": "Falar com o Danny",
-      "newsletter": "Falar sobre o boletim"
-    },
-    "emailLabel": "O melhor é escrever para",
+    "emailLabel": "Envie um e-mail para",
     "copyButton": {
       "copied": "Copiado!",
       "copying": "Copiando...",

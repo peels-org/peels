@@ -157,9 +157,9 @@
       "footer": "Et bien d’autres. <page>Voir tous nos partenaires</page> et mentions."
     },
     "faq": {
-      "title": "Vous vous demandez peut-être...",
-      "subtitle": "Ça n’existe pas déjà ? Quelle est votre mission ? Vous avez des questions, nous avons, espérons-le, des réponses.",
-      "footer": "Encore des questions ? <page>Nous sommes là pour vous aider</page>."
+      "title": "Vous vous demandez peut-être",
+      "subtitle": "Comment fonctionne Peels ? Qui est derrière le projet, et pour qui est-il ? Voici quelques réponses.",
+      "footer": "Encore des questions ? <page>Lire la suite</page> pour en savoir plus."
     }
   },
   "Partners": {
@@ -571,9 +571,9 @@
     "body": "Désolé, nous n’avons pas trouvé la page que vous cherchiez."
   },
   "Support": {
-    "title": "Aide",
-    "metaDescription": "Réponses et options de contact pour obtenir de l’aide avec Peels.",
-    "subtitle": "Trouvez des réponses aux questions fréquentes, ou utilisez les options de contact ci-dessous si vous avez besoin d’aide.",
+    "title": "Contact",
+    "metaDescription": "Réponses et options de contact pour Peels.",
+    "subtitle": "N’hésitez pas à nous écrire pour toute question, ou parcourez les FAQ ci-dessous pour les réponses aux bases.",
     "peelsFaq": {
       "title": "À propos de Peels",
       "communityTitle": "Communauté et partenaires",
@@ -632,23 +632,11 @@
         "question": "Comment gérer les e-mails que je reçois ?",
         "answer": "<p>Peels envoie les e-mails de compte et de messagerie nécessaires au bon fonctionnement du service, notamment les e-mails de connexion et les notifications quand un autre membre vous envoie un message.</p><p>L’infolettre est séparée et optionnelle. Vous pouvez vous y abonner ou vous en désabonner à tout moment depuis votre page Profil.</p><p>Si vous hébergez une annonce, les notifications de messages sont nécessaires pour que les personnes intéressées puissent vous joindre. Vous pouvez arrêter les nouvelles demandes en masquant votre annonce de la carte ou en la supprimant.</p><p>Vous pouvez aussi signaler ou bloquer des membres de Peels depuis la messagerie.</p>"
       }
-    },
-    "contact": {
-      "title": "Contact",
-      "subtitle": "Nous serions ravi·es d’avoir de vos nouvelles."
     }
   },
   "Contact": {
-    "title": "Nous contacter",
-    "subtitle": "Voici comment joindre l’équipe Peels.",
-    "contactLabel": "Si vous voulez",
-    "contactOptions": {
-      "general": "Poser une question générale",
-      "support": "Obtenir de l’aide",
-      "dw": "Parler à Danny",
-      "newsletter": "Parler de l’infolettre"
-    },
-    "emailLabel": "Le mieux est d’écrire à",
+    "title": "Contact",
+    "emailLabel": "Écrivez-nous à",
     "copyButton": {
       "copied": "Copié !",
       "copying": "Copie en cours...",

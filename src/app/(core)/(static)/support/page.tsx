@@ -15,6 +15,6 @@ export default async function Support({ searchParams }: SupportPageProps) {
   const queryString = serialiseSearchParams(params);
 
   permanentRedirect(
-    `${siteConfig.links.help}${queryString ? `?${queryString}` : ""}`
+    `${siteConfig.links.contact}${queryString ? `?${queryString}` : ""}`
   );
 }
