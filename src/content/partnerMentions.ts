@@ -108,6 +108,14 @@ export const communityMediaMentions = [
     href: "https://www.theguardian.com/lifeandstyle/2026/jul/04/kitchen-scraps-garden-cuttings-green-waste-compost-victoria",
   },
   {
+    name: "Clean Up Australia",
+    href: "https://www.cleanup.org.au/food-waste/",
+  },
+  {
+    name: "CERES",
+    href: "https://ceres.org.au/faqs/",
+  },
+  {
     name: "Sustainable Gardening Australia",
     href: "https://www.sgaonline.org.au/cant-compost-food-waste-try-sharing-it",
   },
