@@ -150,11 +150,10 @@
     },
     "partners": {
       "title": "In good company",
-      "subtitle": "Peels is listed by councils and supported by people making community composting easier to find.",
-      "listLabel": "Featured partners and council mentions",
-      "loccalLogoAlt": "LOCCAL logo",
+      "subtitle": "Peels is recommended by local governments, community partners, and the press.",
+      "listLabel": "Featured mentions",
       "logoLinkLabel": "See all partners and mentions",
-      "footer": "And so many more. <page>See all our partners</page> and mentions."
+      "footer": "And many more. See our <page>Partners</page> page for the full list."
     },
     "faq": {
       "title": "You might be wondering",
@@ -164,30 +163,34 @@
   },
   "Partners": {
     "title": "Partners",
-    "subtitle": "Fellow councils and community groups who help food scraps find their way into compost, not landfill.",
-    "metaDescription": "Meet the community organisations and councils helping Peels spread practical composting options further.",
+    "subtitle": "Governments, community partners, and publications working with Peels so more food scraps stay out of landfill.",
+    "metaDescription": "Meet the governments, community partners, and publications pointing people to Peels for practical composting options.",
     "communityPartners": {
       "title": "Community partners",
-      "subtitle": "Organisations helping more people discover practical, community-led composting options.",
+      "subtitle": "Organisations helping more people discover practical, community-led composting through Peels.",
       "visitPartner": "Visit {name}",
       "loccal": {
         "logoAlt": "LOCCAL logo",
         "description": "The Local Community Compost Alliance of Australia supports community-led and community-operated composting across Australia."
+      },
+      "responsiblecafes": {
+        "logoAlt": "Responsible Cafes logo",
+        "description": "Responsible Cafes connects eco-conscious Australians with sustainable cafes working to eliminate single-use plastic coffee cups."
       }
     },
     "councilMentions": {
-      "title": "Council mentions",
-      "subtitle": "These councils and public-sector pages mention Peels as a way for residents to find or share community composting options.",
-      "listLabel": "Councils and public-sector pages that mention Peels"
+      "title": "Government mentions",
+      "subtitle": "Local governments, states, counties, and public agencies that mention Peels for community composting.",
+      "listLabel": "Governments and public agencies that mention Peels"
     },
     "communityMediaMentions": {
       "title": "Community highlights",
-      "subtitle": "These organisations, newsletters, and articles help local residents find Peels.",
+      "subtitle": "Organisations, newsletters, and articles that help people find Peels.",
       "listLabel": "Community organisations, newsletters, and articles that mention Peels"
     },
     "cta": {
       "title": "Want to see Peels in your community?",
-      "body": "Start with our <share>Share page</share>, or <email>email us</email> if you need something more specific for your council, community group, or organisation."
+      "body": "Start with our <share>Share</share> page, or <email>email us</email> if you need something more specific for your council, community group, or organisation."
     }
   },
   "Share": {

@@ -14,7 +14,11 @@ import NewsletterIssuesList from "@/components/NewsletterIssuesList";
 import HeaderBlock from "@/components/HeaderBlock";
 import FooterBlock from "@/components/FooterBlock";
 import { PeelsFaqJsonLd } from "@/components/FaqJsonLd/FaqJsonLd";
-import { homepageCouncilMentions } from "@/content/partnerMentions";
+import {
+  communityPartners,
+  homepageFeaturedMentionDesktopExtras,
+  homepageFeaturedMentions,
+} from "@/content/partnerMentions";
 import { createPeelsMetadata } from "@/utils/seo";
 import { styled } from "next-yak";
 import { theme } from "@/styles/theme.yak";
@@ -50,6 +54,7 @@ export async function generateMetadata() {
 
 export default function Index() {
   const t = useTranslations("Index");
+  const tPartners = useTranslations("Partners");
 
   return (
     <StyledMain>
@@ -79,21 +84,31 @@ export default function Index() {
           <p>{t("partners.subtitle")}</p>
         </HeaderBlock>
         <PartnerProofPanel>
-          <FeaturedPartner
-            href={siteConfig.links.partners}
-            aria-label={t("partners.logoLinkLabel")}
-            title="LOCCAL"
-          >
-            <Image
-              src="/partners/loccal.webp"
-              alt={t("partners.loccalLogoAlt")}
-              width={192}
-              height={144}
-            />
-          </FeaturedPartner>
+          <PartnerLogoGrid aria-label={t("partners.logoLinkLabel")}>
+            {communityPartners.map((partner) => (
+              <PartnerLogoTile
+                key={partner.name}
+                href={siteConfig.links.partners}
+                aria-label={t("partners.logoLinkLabel")}
+                title={partner.name}
+              >
+                <Image
+                  src={partner.logoSrc}
+                  alt={tPartners(partner.logoAltKey)}
+                  width={160}
+                  height={160}
+                />
+              </PartnerLogoTile>
+            ))}
+          </PartnerLogoGrid>
           <PartnerProofList aria-label={t("partners.listLabel")}>
-            {homepageCouncilMentions.map((mention) => (
+            {homepageFeaturedMentions.map((mention) => (
               <li key={mention.name}>{mention.name}</li>
+            ))}
+            {homepageFeaturedMentionDesktopExtras.map((mention) => (
+              <DesktopOnlyMention key={mention.name}>
+                {mention.name}
+              </DesktopOnlyMention>
             ))}
           </PartnerProofList>
         </PartnerProofPanel>
@@ -200,34 +215,44 @@ const PartnerProofPanel = styled.div`
   }
 `;
 
-const FeaturedPartner = styled(Link)`
+const PartnerLogoGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  width: 100%;
+`;
+
+const PartnerLogoTile = styled(Link)`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  min-height: 12rem;
-  padding: 2.75rem;
-  text-align: center;
-  color: ${theme.colors.text.secondary};
+  width: 100%;
+  padding: 1.75rem 1rem;
   text-decoration: none;
   border-radius: calc(${theme.corners.base} * 0.75);
   background: ${theme.colors.background.slight};
   border: 1px solid ${theme.colors.border.light};
-  transition: ${theme.transitions.textColor};
-
-  &:visited {
-    color: ${theme.colors.text.secondary};
-  }
+  transition: opacity 150ms ease-in-out;
 
   &:hover {
-    color: ${theme.colors.text.primary};
+    opacity: 0.5;
   }
 
   & img {
-    width: min(100%, 10rem);
+    width: 100%;
+    max-width: 10rem;
     height: auto;
+    max-height: 4.5rem;
     object-fit: contain;
+  }
+
+  @media (min-width: 768px) {
+    padding: 1.5rem 1.25rem;
+
+    & img {
+      max-width: 100%;
+      max-height: 5rem;
+    }
   }
 `;
 
@@ -242,31 +267,42 @@ const PartnerProofList = styled.ul`
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 0;
     min-height: 3.75rem;
     padding: 0.875rem 1rem;
     text-align: center;
     color: ${theme.colors.text.secondary};
+    font-size: ${theme.typography.size.p.md};
+    line-height: ${theme.typography.lineHeight.p.md};
 
     &:not(:first-child) {
       border-top: 1px solid ${theme.colors.border.light};
     }
   }
 
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  @media (min-width: 640px) and (max-width: 767px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    & li:not(:first-child) {
+    & li:nth-child(2) {
       border-top: none;
-      border-left: 1px solid ${theme.colors.border.light};
     }
   }
+`;
+
+const DesktopOnlyMention = styled.li`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 3.75rem;
+  padding: 0.875rem 1rem;
+  text-align: center;
+  color: ${theme.colors.text.secondary};
+  font-size: ${theme.typography.size.p.md};
+  line-height: ${theme.typography.lineHeight.p.md};
+  border-top: 1px solid ${theme.colors.border.light};
 
   @media (min-width: 768px) {
-    grid-template-columns: 1fr;
-
-    & li:not(:first-child) {
-      border-left: none;
-      border-top: 1px solid ${theme.colors.border.light};
-    }
+    display: flex;
   }
 `;
