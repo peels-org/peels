@@ -814,7 +814,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   const confirmNewPassword = formData.get("confirmPassword") as string;
 
   if (!newPassword || !confirmNewPassword) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/profile/reset-password",
       t("requiredPasswordFields")
@@ -822,7 +822,11 @@ export const resetPasswordAction = async (formData: FormData) => {
   }
 
   if (newPassword !== confirmNewPassword) {
-    encodedRedirect("error", "/profile/reset-password", t("passwordMismatch"));
+    return encodedRedirect(
+      "error",
+      "/profile/reset-password",
+      t("passwordMismatch")
+    );
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -830,14 +834,37 @@ export const resetPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    encodedRedirect(
+    console.error("Password reset updateUser failed:", {
+      code: error.code ?? null,
+      message: error.message,
+      status: error.status ?? null,
+      name: error.name,
+    });
+
+    if (error.code === "same_password") {
+      return encodedRedirect(
+        "error",
+        "/profile/reset-password",
+        t("resetPasswordSamePassword")
+      );
+    }
+
+    if (error.code === "weak_password") {
+      return encodedRedirect(
+        "error",
+        "/profile/reset-password",
+        t("resetPasswordWeak")
+      );
+    }
+
+    return encodedRedirect(
       "error",
       "/profile/reset-password",
       t("resetPasswordDenied")
     );
   }
 
-  encodedRedirect(
+  return encodedRedirect(
     "success",
     "/profile/reset-password",
     t("resetPasswordSuccess")
