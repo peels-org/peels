@@ -206,7 +206,8 @@ async function reverseGeocodeFeatures(
 
     // Multi-type reverse returns at most one feature per type. A second
     // place-only query (limit > 1) picks up both a city and a nearby campus.
-    const [broad, nearbyPlaces] = await Promise.all([
+    // Use allSettled so a single failed request still yields the other.
+    const [broadResult, nearbyPlacesResult] = await Promise.allSettled([
       geocoding.reverse([longitude, latitude], {
         apiKey: mapTilerApiKey,
         types: [
@@ -226,10 +227,31 @@ async function reverseGeocodeFeatures(
       }),
     ]);
 
-    return [
-      ...(broad.features as ListingAreaNameFeature[]),
-      ...(nearbyPlaces.features as ListingAreaNameFeature[]),
-    ];
+    const features: ListingAreaNameFeature[] = [];
+
+    if (broadResult.status === "fulfilled") {
+      features.push(
+        ...(broadResult.value.features as ListingAreaNameFeature[])
+      );
+    } else {
+      console.warn(
+        "Could not reverse-geocode broad area features:",
+        broadResult.reason
+      );
+    }
+
+    if (nearbyPlacesResult.status === "fulfilled") {
+      features.push(
+        ...(nearbyPlacesResult.value.features as ListingAreaNameFeature[])
+      );
+    } else {
+      console.warn(
+        "Could not reverse-geocode nearby places:",
+        nearbyPlacesResult.reason
+      );
+    }
+
+    return features;
   } catch (error) {
     console.warn("Could not reverse-geocode selected location:", error);
     return [];

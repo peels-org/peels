@@ -148,7 +148,8 @@ function isUsableAreaCandidate(feature: ListingAreaNameFeature) {
 }
 
 function normaliseOptionKey(name: string) {
-  return name.trim().toLocaleLowerCase();
+  // Locale-independent: toLocaleLowerCase() can diverge (e.g. Turkish i).
+  return name.trim().toLowerCase();
 }
 
 function pushUniqueOption(
