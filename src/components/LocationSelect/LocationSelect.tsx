@@ -203,14 +203,17 @@ export default function LocationSelect({
       const initializeLocation = async () => {
         try {
           const response = await geolocation.info();
+          const detectedCountryCode = normaliseListingCountryCode(
+            response?.country_code
+          );
 
           // Only update state if component is still mounted and user hasn't changed the value
           if (
             isMounted &&
             !normaliseListingCountryCode(countryCode) &&
-            response?.country_code
+            detectedCountryCode
           ) {
-            setCountryCode(response.country_code);
+            setCountryCode(detectedCountryCode);
           }
         } catch (error) {
           console.warn("Could not detect country from IP:", error);
@@ -230,7 +233,7 @@ export default function LocationSelect({
   const handleCountryChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       onLocationInteract?.();
-      setCountryCode(e.target.value);
+      setCountryCode(normaliseListingCountryCode(e.target.value) || "");
       setMapShown(false);
       inputRef.current?.focus();
     },
@@ -315,7 +318,10 @@ export default function LocationSelect({
         {/* TODO: Accessibility: label currently covers both select and geocoding control but not yet via htmlFor. Fix or make a separate visually hidden one for the geocoding control */}
         <Select
           id="country"
-          value={countryCode ? countryCode : LISTING_COUNTRY_PLACEHOLDER}
+          value={
+            normaliseListingCountryCode(countryCode) ||
+            LISTING_COUNTRY_PLACEHOLDER
+          }
           onChange={handleCountryChange}
         >
           <option disabled={true} value={LISTING_COUNTRY_PLACEHOLDER}>
