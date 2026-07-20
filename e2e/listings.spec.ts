@@ -122,29 +122,28 @@ test("listing location search picks a geocoding result", async ({ page }) => {
   await mockMapTilerGeocoding(
     page,
     createMockGeocodingFeature({
-      id: "poi.mount-kuring-gai-station",
-      text: "Mount Kuring-gai Station",
-      placeName:
-        "Mount Kuring-gai Station, Mount Kuring-gai, Sydney, Australia",
+      id: "poi.circular-quay-station",
+      text: "Circular Quay Station",
+      placeName: "Circular Quay Station, Circular Quay, Sydney, Australia",
       placeType: ["poi"],
       context: [
         {
-          id: "neighbourhood.mount-kuring-gai",
-          text: "Mount Kuring-gai",
+          id: "neighbourhood.circular-quay",
+          text: "Circular Quay",
         },
         {
           id: "place.sydney",
           text: "Sydney",
         },
       ],
-      center: [151.1368, -33.6546],
+      center: [151.2108, -33.861],
     })
   );
 
   await expect(page.getByTestId("listing-write-form")).toBeVisible();
   await page.locator("#country").selectOption("AU");
   const searchInput = page.getByTestId("listing-location-search-input");
-  await searchInput.fill("Mount Kuring-gai");
+  await searchInput.fill("Circular Quay");
   await expect
     .poll(async () =>
       searchInput.evaluate((element) =>
@@ -152,16 +151,86 @@ test("listing location search picks a geocoding result", async ({ page }) => {
       )
     )
     .toBeGreaterThanOrEqual(16);
-  await page.getByRole("option", { name: /Mount Kuring-gai Station/ }).click();
+  await page.getByRole("option", { name: /Circular Quay Station/ }).click();
 
   await expect(
-    page.getByRole("option", { name: /Mount Kuring-gai Station/ })
+    page.getByRole("option", { name: /Circular Quay Station/ })
   ).toHaveCount(0);
-  await expect(searchInput).toHaveValue("Mount Kuring-gai");
+  // Search field keeps the selected place; public label is the neighbourhood.
+  await expect(searchInput).toHaveValue(
+    "Circular Quay Station, Circular Quay, Sydney, Australia"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "Circular Quay"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).not.toContainText(
+    "Circular Quay Station"
+  );
   await expect(page.locator(".maplibregl-canvas")).toBeVisible({
     timeout: 10_000,
   });
   await expect(page.getByText(/Drag the pin/)).toBeVisible();
+});
+
+test("listing location search offers alternate public area labels", async ({
+  page,
+}) => {
+  await signIn(page, {
+    email: HOST_EMAIL,
+    redirectTo: "/profile/listings/new/business",
+  });
+  await mockMapTilerGeocoding(
+    page,
+    createMockGeocodingFeature({
+      id: "address.great-russell-street",
+      text: "28 Great Russell Street",
+      placeName: "28 Great Russell Street, Bloomsbury, London, United Kingdom",
+      placeType: ["address"],
+      context: [
+        {
+          id: "neighbourhood.bloomsbury",
+          text: "Bloomsbury",
+        },
+        {
+          id: "place.london",
+          text: "London",
+        },
+      ],
+      center: [-0.127, 51.5194],
+      countryCode: "GB",
+    })
+  );
+
+  await expect(page.getByTestId("listing-write-form")).toBeVisible();
+  await page.locator("#country").selectOption("GB");
+  const searchInput = page.getByTestId("listing-location-search-input");
+  await searchInput.fill("28 Great Russell Street");
+  await page.getByRole("option", { name: /28 Great Russell Street/ }).click();
+
+  await expect(searchInput).toHaveValue(
+    "28 Great Russell Street, Bloomsbury, London, United Kingdom"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "Bloomsbury"
+  );
+  await page.getByTestId("listing-area-name-change").click();
+  await expect(page.getByTestId("listing-area-name-options")).toBeVisible();
+  await expect(page.getByTestId("listing-area-name-options")).toContainText(
+    "London"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).toContainText(
+    "Bloomsbury"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
+    "Great Russell Street"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
+    "England"
+  );
+  await page.getByRole("radio", { name: /^London$/ }).click();
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "London"
+  );
 });
 
 test("listing edit clears a legacy country placeholder to null and round-trips ISO codes", async ({

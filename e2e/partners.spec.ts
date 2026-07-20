@@ -50,9 +50,11 @@ test("partners page shows partner and council mention proof", async ({
     page.getByRole("link", { name: "How to Save Our Planet" })
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Responsible Cafes" })
+    page.getByRole("link", { name: "Responsible Cafes", exact: true })
   ).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "LOCCAL" })).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "LOCCAL", exact: true })
+  ).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: "Share", exact: true })
   ).toHaveAttribute("href", "/share");

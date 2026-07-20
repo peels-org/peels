@@ -11,6 +11,7 @@ import {
 
 export const MAP_GEOCODING_TYPES: GeocodingPlaceType[] = [
   "address",
+  "road",
   "place",
   "neighbourhood",
   "locality",
