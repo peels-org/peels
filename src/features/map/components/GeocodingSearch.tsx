@@ -43,6 +43,7 @@ type GeocodingSearchProps = {
   loadingMessage: string;
   noResultsMessage: string;
   onBlur?: () => void;
+  onClear?: () => void;
   onFocus?: () => void;
   onPick: (feature: GeocodingFeature) => void;
   onStatusMessageChange?: (message: string) => void;
@@ -243,6 +244,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
       loadingMessage,
       noResultsMessage,
       onBlur,
+      onClear,
       onFocus,
       onPick,
       onStatusMessageChange,
@@ -306,6 +308,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
         clear: () => {
           setQuery("");
           setActiveIndex(0);
+          onClear?.();
         },
         focus: () => inputRef.current?.focus(),
         setQuery: (nextQuery: string) => {
@@ -313,7 +316,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
           setActiveIndex(0);
         },
       }),
-      []
+      [onClear]
     );
 
     const pickFeature = (feature: GeocodingFeature) => {
@@ -366,8 +369,12 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
               onBlur?.();
             }}
             onChange={(event) => {
-              setQuery(event.target.value);
+              const nextQuery = event.target.value;
+              setQuery(nextQuery);
               setActiveIndex(0);
+              if (!nextQuery.trim()) {
+                onClear?.();
+              }
             }}
             onFocus={() => {
               setIsFocused(true);
@@ -382,6 +389,7 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
               onClick={() => {
                 setQuery("");
                 setActiveIndex(0);
+                onClear?.();
                 inputRef.current?.focus();
               }}
             >

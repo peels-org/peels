@@ -1,6 +1,6 @@
 "use client";
 import { theme } from "@/styles/theme.yak";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useId, useState, useRef } from "react";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { GeocodingFeature } from "@maptiler/client";
 
@@ -11,9 +11,13 @@ import {
   type MapRef,
   type MarkerDragEvent,
 } from "react-map-gl/maplibre";
-// import "maplibre-gl/dist/maplibre-gl.css";
 
 import Select from "@/components/Select";
+import {
+  Radio as HeadlessRadio,
+  RadioGroup as HeadlessRadioGroup,
+} from "@headlessui/react";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
 import MapThumbnail from "@/components/MapThumbnail";
 import MapPin from "@/components/MapPin";
@@ -33,6 +37,15 @@ import {
   LISTING_COUNTRY_PLACEHOLDER,
   normaliseListingCountryCode,
 } from "@/utils/listingCountry";
+import {
+  collectPublicAreaNameOptions,
+  collectPublicAreaNameOptionsFromSelectedFeature,
+  derivePublicAreaName,
+  getSelectedFeatureDisplayName,
+  isInstitutionalPlaceLabel,
+  type ListingAreaNameFeature,
+  type PublicAreaNameOption,
+} from "@/utils/listingAreaName";
 
 const InputHintComponent = InputHint as any;
 
@@ -42,45 +55,100 @@ const StyledFieldset = styled(Fieldset)`
   gap: ${theme.spacing.forms.gap.field};
 `;
 
+const ChangeButton = styled.button`
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: ${theme.colors.text.brand.primary};
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+  cursor: pointer;
+  transition: opacity 150ms ease-in-out;
+
+  &:hover {
+    opacity: 0.65;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${theme.colors.focus.outline};
+    outline-offset: 2px;
+  }
+`;
+
+const AreaNamePicker = styled.div`
+  margin-top: 0.35rem;
+`;
+
+const AreaNameRadioGroup = styled(HeadlessRadioGroup)`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+`;
+
+const AreaNameRadio = styled(HeadlessRadio)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid ${theme.colors.border.stark};
+  border-radius: calc(${theme.corners.base} * 0.5);
+  background-color: ${theme.colors.background.slight};
+  cursor: pointer;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  font-weight: 500;
+  color: ${theme.colors.text.ui.primary};
+  transition:
+    background-color 150ms ease-in-out,
+    border-color 150ms ease-in-out;
+
+  &[data-checked] {
+    border-color: ${theme.colors.border.focus};
+    outline: 2px solid ${theme.colors.focus.outline};
+    outline-offset: 0;
+
+    & .area-name-check-icon {
+      opacity: 1;
+    }
+  }
+
+  &[data-hover]:not([data-checked]) {
+    border-color: ${theme.colors.border.focus};
+  }
+
+  &[data-focus] {
+    outline: 2px solid ${theme.colors.focus.outline};
+    outline-offset: 0;
+  }
+`;
+
+const AreaNameCheckIcon = styled(CheckCircleIcon)`
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  opacity: 0;
+  fill: ${theme.colors.text.primary};
+  transition: opacity 150ms ease-in-out;
+`;
+
 const ZOOM_LEVEL = 16;
 
 import { config, geocoding, geolocation } from "@maptiler/client";
 
-// Reverse geocoding for legible location (area_name)
 const mapTilerApiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY ?? "";
 config.apiKey = mapTilerApiKey;
-
-// const maptilerClient = new maptilersdk.Maptiler();
 
 type Coordinates = {
   latitude: number;
   longitude: number;
 };
 
-type AreaNameFeature = {
-  id?: string;
-  place_name?: string;
-  place_type?: string[];
-  properties?: {
-    "osm:place_type"?: string;
-  };
-  text?: string;
-  "osm:place_type"?: string;
-};
-
-type AreaNameMatch = {
-  name: string;
-  priority: number;
-};
-
-const areaNameTypePriority = [
-  "neighbourhood",
-  "place",
-  "municipality",
-  "region",
-  "country",
-  "continental_marine",
-] as const;
 type LocationSelectProps = {
   listingType: string;
   coordinates: Coordinates | null;
@@ -95,78 +163,76 @@ type LocationSelectProps = {
   error?: string;
 };
 
-function featureMatchesAreaType(feature: AreaNameFeature, type: string) {
-  return (
-    feature.place_type?.includes(type) ||
-    feature.id?.startsWith(`${type}.`) ||
-    feature.id?.startsWith(`${type}:`)
-  );
-}
-
-function isUnknownOsmPlace(feature: AreaNameFeature) {
-  return (
-    feature.properties?.["osm:place_type"] === "unknown" ||
-    feature["osm:place_type"] === "unknown"
-  );
-}
-
-function getBestAreaNameMatchFromFeatures(
-  features: AreaNameFeature[]
-): AreaNameMatch | null {
-  if (!features.length) {
-    return null;
+function isUsableReverseDisplayName(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed || trimmed === "-") {
+    return false;
   }
 
-  for (const [priority, type] of areaNameTypePriority.entries()) {
-    const areaFeature = features.find(
-      (feature) =>
-        featureMatchesAreaType(feature, type) && !isUnknownOsmPlace(feature)
-    );
+  // MapTiler sometimes returns sparse address lines like "-, Sydney, …".
+  if (/^-/.test(trimmed) || /,\s*-/.test(trimmed)) {
+    return false;
+  }
 
-    if (areaFeature?.text) {
-      return {
-        name: areaFeature.text,
-        priority,
-      };
+  return true;
+}
+
+function reverseGeocodeDisplayName(features: ListingAreaNameFeature[]) {
+  for (const feature of features) {
+    const placeName = feature.place_name?.trim();
+    if (placeName && isUsableReverseDisplayName(placeName)) {
+      return placeName;
     }
   }
 
-  const fallbackName = features[0]?.place_name || features[0]?.text || "";
+  for (const feature of features) {
+    const text = feature.text?.trim();
+    if (text && isUsableReverseDisplayName(text)) {
+      return text;
+    }
+  }
 
-  return fallbackName
-    ? {
-        name: fallbackName,
-        priority: areaNameTypePriority.length,
-      }
-    : null;
+  return "";
 }
 
-function getSelectedFeatureAreaNameMatch(feature: GeocodingFeature) {
-  return getBestAreaNameMatchFromFeatures([
-    feature,
-    ...((feature.context as AreaNameFeature[] | undefined) ?? []),
-  ]);
-}
-
-async function getAreaNameMatch(
+async function reverseGeocodeFeatures(
   longitude: number,
   latitude: number
-): Promise<AreaNameMatch | null> {
+): Promise<ListingAreaNameFeature[]> {
   try {
     if (!mapTilerApiKey) {
-      return null;
+      return [];
     }
 
-    const coordinates = await geocoding.reverse([longitude, latitude], {
-      apiKey: mapTilerApiKey,
-    });
+    // Multi-type reverse returns at most one feature per type. A second
+    // place-only query (limit > 1) picks up both a city and a nearby campus.
+    const [broad, nearbyPlaces] = await Promise.all([
+      geocoding.reverse([longitude, latitude], {
+        apiKey: mapTilerApiKey,
+        types: [
+          "neighbourhood",
+          "locality",
+          "municipal_district",
+          "municipality",
+          "address",
+          "road",
+          "poi",
+        ],
+      }),
+      geocoding.reverse([longitude, latitude], {
+        apiKey: mapTilerApiKey,
+        types: ["place"],
+        limit: 5,
+      }),
+    ]);
 
-    return getBestAreaNameMatchFromFeatures(
-      coordinates.features as AreaNameFeature[]
-    );
+    return [
+      ...(broad.features as ListingAreaNameFeature[]),
+      ...(nearbyPlaces.features as ListingAreaNameFeature[]),
+    ];
   } catch (error) {
     console.warn("Could not reverse-geocode selected location:", error);
-    return null;
+    return [];
   }
 }
 
@@ -186,54 +252,109 @@ export default function LocationSelect({
   const t = useTranslations();
   const mapRef = useRef<MapRef | null>(null);
   const inputRef = useRef<GeocodingSearchHandle | null>(null);
+  const areaNamePickerId = useId();
+  // Only set when the user picks from the dropdown — never when IP applies.
+  const userChoseCountryRef = useRef(false);
+  const [detectedCountryCode, setDetectedCountryCode] = useState<string | null>(
+    null
+  );
 
   const [mapShown, setMapShown] = useState(coordinates ? true : false);
   const placeholderText =
     initialPlaceholderText || t("Listings.form.locationPlaceholder");
   const [searchStatusMessage, setSearchStatusMessage] = useState("");
+  const [areaNameOptions, setAreaNameOptions] = useState<
+    PublicAreaNameOption[]
+  >([]);
+  const [isAreaNamePickerOpen, setIsAreaNamePickerOpen] = useState(false);
 
+  // 1) Detect country from IP once (for new listings).
   useEffect(() => {
-    if (autoDetectCountry && !normaliseListingCountryCode(countryCode)) {
-      if (!mapTilerApiKey) {
+    if (!autoDetectCountry) {
+      return;
+    }
+
+    if (!mapTilerApiKey) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const initializeLocation = async () => {
+      try {
+        const response = await geolocation.info();
+        const detected = normaliseListingCountryCode(response?.country_code);
+
+        if (!cancelled && detected) {
+          setDetectedCountryCode(detected);
+        }
+      } catch (detectError) {
+        console.warn("Could not detect country from IP:", detectError);
+      }
+    };
+
+    initializeLocation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [autoDetectCountry]);
+
+  // 2) Apply detection only while the field is still empty and the user
+  //    hasn't chosen manually (avoids late IP responses clobbering a pick).
+  useEffect(() => {
+    if (!detectedCountryCode) {
+      return;
+    }
+
+    setCountryCode((current) => {
+      if (userChoseCountryRef.current) {
+        return current;
+      }
+
+      if (normaliseListingCountryCode(current)) {
+        return current;
+      }
+
+      return detectedCountryCode;
+    });
+  }, [detectedCountryCode, setCountryCode]);
+
+  const applyAreaNameOptions = useCallback(
+    (nextOptions: PublicAreaNameOption[], preferredName?: string) => {
+      setAreaNameOptions(nextOptions);
+
+      if (!nextOptions.length) {
+        setAreaName("");
+        setIsAreaNamePickerOpen(false);
         return;
       }
 
-      let isMounted = true; // Track if component is mounted
+      const preferredStillValid =
+        preferredName &&
+        nextOptions.some((option) => option.name === preferredName);
 
-      const initializeLocation = async () => {
-        try {
-          const response = await geolocation.info();
-          const detectedCountryCode = normaliseListingCountryCode(
-            response?.country_code
-          );
+      const defaultName =
+        nextOptions.find((option) => !isInstitutionalPlaceLabel(option.name))
+          ?.name ?? nextOptions[0].name;
 
-          // Only update state if component is still mounted and user hasn't changed the value
-          if (
-            isMounted &&
-            !normaliseListingCountryCode(countryCode) &&
-            detectedCountryCode
-          ) {
-            setCountryCode(detectedCountryCode);
-          }
-        } catch (error) {
-          console.warn("Could not detect country from IP:", error);
-          // No fallback needed - keep initial selection
-        }
-      };
-
-      initializeLocation();
-
-      // Cleanup function
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [autoDetectCountry, countryCode, setCountryCode]);
+      setAreaName(preferredStillValid ? preferredName : defaultName);
+    },
+    [setAreaName]
+  );
 
   const handleCountryChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
+      const nextCountryCode = normaliseListingCountryCode(e.target.value);
+
+      // Ignore spurious events that clear back to the placeholder.
+      if (!nextCountryCode) {
+        return;
+      }
+
+      userChoseCountryRef.current = true;
       onLocationInteract?.();
-      setCountryCode(normaliseListingCountryCode(e.target.value) || "");
+      setCountryCode(nextCountryCode);
       setMapShown(false);
       inputRef.current?.focus();
     },
@@ -241,7 +362,7 @@ export default function LocationSelect({
   );
 
   const handleDragStart = useCallback(() => {
-    inputRef.current?.blur(); // Close and blur the input if it's open
+    inputRef.current?.blur();
   }, []);
 
   const handleDragEnd = useCallback(
@@ -253,23 +374,33 @@ export default function LocationSelect({
         longitude: event.lngLat.lng,
       };
 
-      setCoordinates(nextCoordinates); // Unsure if this is needed. Might be helpful for form submission
+      setCoordinates(nextCoordinates);
 
-      const nextAreaNameMatch = await getAreaNameMatch(
+      const reverseFeatures = await reverseGeocodeFeatures(
         nextCoordinates.longitude,
         nextCoordinates.latitude
       );
+      const nextOptions = collectPublicAreaNameOptions(reverseFeatures);
+      const nextAreaNameMatch = derivePublicAreaName(reverseFeatures);
+      const displayName =
+        reverseGeocodeDisplayName(reverseFeatures) ||
+        nextAreaNameMatch?.name ||
+        "";
 
-      if (nextAreaNameMatch) {
-        setAreaName(nextAreaNameMatch.name);
-        inputRef.current?.setQuery(nextAreaNameMatch.name);
-      } else {
-        setAreaName("");
-        inputRef.current?.setQuery("");
-      }
+      applyAreaNameOptions(nextOptions, areaName);
+      inputRef.current?.setQuery(displayName);
     },
-    [onLocationInteract, setCoordinates, setAreaName]
+    [onLocationInteract, setCoordinates, applyAreaNameOptions, areaName]
   );
+
+  const handleClearSearch = useCallback(() => {
+    onLocationInteract?.();
+    setCoordinates(null);
+    setAreaName("");
+    setAreaNameOptions([]);
+    setIsAreaNamePickerOpen(false);
+    setMapShown(false);
+  }, [onLocationInteract, setCoordinates, setAreaName]);
 
   const handlePick = useCallback(
     async (feature: GeocodingFeature) => {
@@ -282,18 +413,19 @@ export default function LocationSelect({
         longitude: feature.center[0],
       };
 
-      const selectedAreaNameMatch = getSelectedFeatureAreaNameMatch(feature);
-      const reverseAreaNameMatch = selectedAreaNameMatch
-        ? null
-        : await getAreaNameMatch(
-            nextCoordinates.longitude,
-            nextCoordinates.latitude
-          );
-      const nextAreaNameMatch = selectedAreaNameMatch ?? reverseAreaNameMatch;
-      const nextAreaName = nextAreaNameMatch?.name || feature.place_name;
-      setAreaName(nextAreaName);
-      inputRef.current?.setQuery(nextAreaName);
+      const displayName = getSelectedFeatureDisplayName(feature);
+      const reverseFeatures = await reverseGeocodeFeatures(
+        nextCoordinates.longitude,
+        nextCoordinates.latitude
+      );
+      const nextOptions = collectPublicAreaNameOptionsFromSelectedFeature(
+        feature,
+        reverseFeatures
+      );
 
+      applyAreaNameOptions(nextOptions);
+      setIsAreaNamePickerOpen(false);
+      inputRef.current?.setQuery(displayName);
       inputRef.current?.blur();
 
       if (!mapShown) {
@@ -308,8 +440,10 @@ export default function LocationSelect({
         setCoordinates(nextCoordinates);
       }
     },
-    [mapShown, onLocationInteract, setCoordinates, setAreaName]
+    [mapShown, onLocationInteract, setCoordinates, applyAreaNameOptions]
   );
+
+  const canChangeAreaName = areaNameOptions.length > 1;
 
   return (
     <StyledFieldset>
@@ -334,7 +468,6 @@ export default function LocationSelect({
           ))}
         </Select>
 
-        {/* TODO: Handle database error when user doesn't enter a location */}
         <GeocodingSearch
           ref={inputRef}
           id="autocomplete"
@@ -348,34 +481,77 @@ export default function LocationSelect({
           loadingMessage={t("Map.searchLoading")}
           noResultsMessage={t("Map.searchNoResults")}
           onPick={handlePick}
+          onClear={handleClearSearch}
           onStatusMessageChange={setSearchStatusMessage}
           placeholder={placeholderText}
         />
-        <InputHintComponent variant={error ? "error" : undefined}>
+        <InputHintComponent
+          variant={error ? "error" : undefined}
+          data-testid={areaName ? "listing-public-area-label" : undefined}
+        >
           {error
             ? error
-            : searchStatusMessage ||
-              t("Listings.form.locationHint", {
-                type: listingType,
-              })}
+            : searchStatusMessage
+              ? searchStatusMessage
+              : areaName
+                ? canChangeAreaName
+                  ? t.rich("Listings.form.shownOnPeelsAsChange", {
+                      area: areaName,
+                      change: (chunks) => (
+                        <ChangeButton
+                          type="button"
+                          data-testid="listing-area-name-change"
+                          aria-expanded={isAreaNamePickerOpen}
+                          aria-controls={areaNamePickerId}
+                          onClick={() => {
+                            onLocationInteract?.();
+                            setIsAreaNamePickerOpen((open) => !open);
+                          }}
+                        >
+                          {chunks}
+                        </ChangeButton>
+                      ),
+                    })
+                  : t("Listings.form.shownOnPeelsAs", {
+                      area: areaName,
+                    })
+                : t("Listings.form.locationHint", {
+                    type: listingType,
+                  })}
         </InputHintComponent>
+
+        {isAreaNamePickerOpen && canChangeAreaName ? (
+          <AreaNamePicker id={areaNamePickerId}>
+            <AreaNameRadioGroup
+              value={areaName}
+              onChange={(value: string) => {
+                onLocationInteract?.();
+                setAreaName(value);
+              }}
+              aria-label={t("Listings.form.areaNamePickerLabel")}
+              data-testid="listing-area-name-options"
+            >
+              {areaNameOptions.map((option) => (
+                <AreaNameRadio key={option.name} value={option.name}>
+                  <span>{option.name}</span>
+                  <AreaNameCheckIcon
+                    className="area-name-check-icon"
+                    aria-hidden="true"
+                  />
+                </AreaNameRadio>
+              ))}
+            </AreaNameRadioGroup>
+          </AreaNamePicker>
+        ) : null}
       </Field>
 
       {mapShown && coordinates && (
         <Field>
-          {/* <p>Refine your pin location:</p> */}
-
           <MapThumbnail
             ref={mapRef}
             initialViewState={{ ...coordinates, zoom: ZOOM_LEVEL }}
             height={`35dvh`}
-            // Allow interaction but just disable the input handlers that collide with the overall form experience (i.e. scrolling)
-            // dragRotate={false}
-            // dragPan={false}
             scrollZoom={false}
-            // doubleClickZoom={false}
-            // boxZoom={false}
-            // cursor="default"
           >
             <Marker
               draggable={true}

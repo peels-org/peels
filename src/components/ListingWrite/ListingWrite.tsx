@@ -230,6 +230,22 @@ export default function ListingWrite({
     setHasInteractedWithForm(true);
   }, []);
 
+  // Clear a stale location error once a pin exists again (e.g. after clear → re-pick).
+  useEffect(() => {
+    if (!coordinates) {
+      return;
+    }
+
+    setErrors((previous) => {
+      if (!previous.location) {
+        return previous;
+      }
+
+      const { location: _location, ...rest } = previous;
+      return rest;
+    });
+  }, [coordinates]);
+
   const isMutating = submitMutation.isPending || deleteMutation.isPending;
   const initialListingValues = useMemo(
     () =>

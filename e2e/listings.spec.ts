@@ -122,29 +122,28 @@ test("listing location search picks a geocoding result", async ({ page }) => {
   await mockMapTilerGeocoding(
     page,
     createMockGeocodingFeature({
-      id: "poi.mount-kuring-gai-station",
-      text: "Mount Kuring-gai Station",
-      placeName:
-        "Mount Kuring-gai Station, Mount Kuring-gai, Sydney, Australia",
+      id: "poi.riverside-station",
+      text: "Riverside Station",
+      placeName: "Riverside Station, Riverside, Sydney, Australia",
       placeType: ["poi"],
       context: [
         {
-          id: "neighbourhood.mount-kuring-gai",
-          text: "Mount Kuring-gai",
+          id: "neighbourhood.riverside",
+          text: "Riverside",
         },
         {
           id: "place.sydney",
           text: "Sydney",
         },
       ],
-      center: [151.1368, -33.6546],
+      center: [151.2, -33.87],
     })
   );
 
   await expect(page.getByTestId("listing-write-form")).toBeVisible();
   await page.locator("#country").selectOption("AU");
   const searchInput = page.getByTestId("listing-location-search-input");
-  await searchInput.fill("Mount Kuring-gai");
+  await searchInput.fill("Riverside");
   await expect
     .poll(async () =>
       searchInput.evaluate((element) =>
@@ -152,16 +151,86 @@ test("listing location search picks a geocoding result", async ({ page }) => {
       )
     )
     .toBeGreaterThanOrEqual(16);
-  await page.getByRole("option", { name: /Mount Kuring-gai Station/ }).click();
+  await page.getByRole("option", { name: /Riverside Station/ }).click();
 
   await expect(
-    page.getByRole("option", { name: /Mount Kuring-gai Station/ })
+    page.getByRole("option", { name: /Riverside Station/ })
   ).toHaveCount(0);
-  await expect(searchInput).toHaveValue("Mount Kuring-gai");
+  // Search field keeps the selected place; public label is the neighbourhood.
+  await expect(searchInput).toHaveValue(
+    "Riverside Station, Riverside, Sydney, Australia"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "Riverside"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).not.toContainText(
+    "Riverside Station"
+  );
   await expect(page.locator(".maplibregl-canvas")).toBeVisible({
     timeout: 10_000,
   });
   await expect(page.getByText(/Drag the pin/)).toBeVisible();
+});
+
+test("listing location search offers alternate public area labels", async ({
+  page,
+}) => {
+  await signIn(page, {
+    email: HOST_EMAIL,
+    redirectTo: "/profile/listings/new/business",
+  });
+  await mockMapTilerGeocoding(
+    page,
+    createMockGeocodingFeature({
+      id: "address.college-road",
+      text: "10 College Road",
+      placeName: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+      placeType: ["address"],
+      context: [
+        {
+          id: "neighbourhood.westfield",
+          text: "Westfield",
+        },
+        {
+          id: "place.exampleton",
+          text: "Exampleton",
+        },
+      ],
+      center: [-1.08, 53.96],
+      countryCode: "GB",
+    })
+  );
+
+  await expect(page.getByTestId("listing-write-form")).toBeVisible();
+  await page.locator("#country").selectOption("GB");
+  const searchInput = page.getByTestId("listing-location-search-input");
+  await searchInput.fill("10 College Road");
+  await page.getByRole("option", { name: /10 College Road/ }).click();
+
+  await expect(searchInput).toHaveValue(
+    "10 College Road, Exampleton, EX1 2AB, United Kingdom"
+  );
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "Westfield"
+  );
+  await page.getByTestId("listing-area-name-change").click();
+  await expect(page.getByTestId("listing-area-name-options")).toBeVisible();
+  await expect(page.getByTestId("listing-area-name-options")).toContainText(
+    "Exampleton"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).toContainText(
+    "Westfield"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
+    "College Road"
+  );
+  await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
+    "England"
+  );
+  await page.getByRole("radio", { name: /^Exampleton$/ }).click();
+  await expect(page.getByTestId("listing-public-area-label")).toContainText(
+    "Exampleton"
+  );
 });
 
 test("listing edit clears a legacy country placeholder to null and round-trips ISO codes", async ({
