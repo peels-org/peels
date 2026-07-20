@@ -38,6 +38,7 @@ import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 import { useInlineMutation } from "@/hooks/useInlineMutation";
+import { normaliseListingCountryCode } from "@/utils/listingCountry";
 import {
   buildListingDraft,
   submitListingDelete,
@@ -201,7 +202,7 @@ export default function ListingWrite({
     initialListing?.description || ""
   );
   const [countryCode, setCountryCode] = useState<string>(
-    initialListing?.country_code || ""
+    normaliseListingCountryCode(initialListing?.country_code) || ""
   );
   const [coordinates, setCoordinates] = useState(
     initialListing?.coordinates ?? null
@@ -238,7 +239,8 @@ export default function ListingWrite({
             areaName: initialListing.area_name,
             avatar: initialListing.avatar,
             coordinates: initialListing.coordinates,
-            countryCode: initialListing.country_code,
+            countryCode:
+              normaliseListingCountryCode(initialListing.country_code) || "",
             description: initialListing.description,
             isStub: initialListing.is_stub,
             links: initialListing.links,

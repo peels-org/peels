@@ -27,7 +27,7 @@ export type ListingDraftInput = {
   description: string;
   location: string;
   area_name: string;
-  country_code: string;
+  country_code: string | null;
   accepted_items: string[];
   rejected_items: string[];
   photos: string[];

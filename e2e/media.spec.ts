@@ -1,39 +1,16 @@
-import { execFileSync } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
 import { expect, type Page, test } from "@playwright/test";
-import { HOST_EMAIL, SEEDED_PASSWORD, signIn } from "./helpers";
+import {
+  HOST_EMAIL,
+  SEEDED_PASSWORD,
+  createAdminClient,
+  parseLocalSupabaseEnv,
+  signIn,
+} from "./helpers";
 
 const BUSINESS_LISTING_SLUG = "demo-inner-west-cafe";
 const BUSINESS_LISTING_EDIT_PATH = `/profile/listings/${BUSINESS_LISTING_SLUG}`;
 const HOST_USER_ID = "2c9ae20c-2469-4e60-84b3-39268697717c";
-
-function parseLocalSupabaseEnv() {
-  const output = execFileSync("supabase", ["status", "-o", "env"], {
-    encoding: "utf8",
-  });
-
-  return output
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .reduce<Record<string, string>>((env, line) => {
-      const separatorIndex = line.indexOf("=");
-      if (separatorIndex === -1) return env;
-
-      const key = line.slice(0, separatorIndex);
-      const value = line.slice(separatorIndex + 1).replace(/^"(.*)"$/, "$1");
-      env[key] = value;
-      return env;
-    }, {});
-}
-
-function createAdminClient() {
-  const env = parseLocalSupabaseEnv();
-
-  return createClient(env.API_URL, env.SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
 
 async function uploadTestMedia(
   page: Page,

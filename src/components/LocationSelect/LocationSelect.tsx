@@ -29,6 +29,10 @@ import InputHint from "@/components/InputHint";
 
 import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
+import {
+  LISTING_COUNTRY_PLACEHOLDER,
+  normaliseListingCountryCode,
+} from "@/utils/listingCountry";
 
 const InputHintComponent = InputHint as any;
 
@@ -189,7 +193,7 @@ export default function LocationSelect({
   const [searchStatusMessage, setSearchStatusMessage] = useState("");
 
   useEffect(() => {
-    if (autoDetectCountry && !countryCode) {
+    if (autoDetectCountry && !normaliseListingCountryCode(countryCode)) {
       if (!mapTilerApiKey) {
         return;
       }
@@ -199,10 +203,17 @@ export default function LocationSelect({
       const initializeLocation = async () => {
         try {
           const response = await geolocation.info();
+          const detectedCountryCode = normaliseListingCountryCode(
+            response?.country_code
+          );
 
           // Only update state if component is still mounted and user hasn't changed the value
-          if (isMounted && !countryCode && response?.country_code) {
-            setCountryCode(response.country_code);
+          if (
+            isMounted &&
+            !normaliseListingCountryCode(countryCode) &&
+            detectedCountryCode
+          ) {
+            setCountryCode(detectedCountryCode);
           }
         } catch (error) {
           console.warn("Could not detect country from IP:", error);
@@ -222,7 +233,7 @@ export default function LocationSelect({
   const handleCountryChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       onLocationInteract?.();
-      setCountryCode(e.target.value);
+      setCountryCode(normaliseListingCountryCode(e.target.value) || "");
       setMapShown(false);
       inputRef.current?.focus();
     },
@@ -307,11 +318,13 @@ export default function LocationSelect({
         {/* TODO: Accessibility: label currently covers both select and geocoding control but not yet via htmlFor. Fix or make a separate visually hidden one for the geocoding control */}
         <Select
           id="country"
-          value={countryCode ? countryCode : "initial"}
+          value={
+            normaliseListingCountryCode(countryCode) ||
+            LISTING_COUNTRY_PLACEHOLDER
+          }
           onChange={handleCountryChange}
-          required={true}
         >
-          <option disabled={true} value="initial">
+          <option disabled={true} value={LISTING_COUNTRY_PLACEHOLDER}>
             {t("Listings.form.selectCountry")}
           </option>
           {countries.map((country) => (
@@ -328,7 +341,7 @@ export default function LocationSelect({
           ariaInvalid={error ? "true" : undefined}
           ariaLabel={t("Listings.form.location")}
           clearLabel={t("Map.searchClear")}
-          countryCode={countryCode}
+          countryCode={normaliseListingCountryCode(countryCode)}
           error={error}
           errorMessage={t("Map.searchError")}
           inputTestId="listing-location-search-input"
