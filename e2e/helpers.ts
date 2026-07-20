@@ -1,3 +1,5 @@
+import { execFileSync } from "node:child_process";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, type Page } from "@playwright/test";
 
 export const HOST_EMAIL = "demo-host@peels.local";
@@ -8,6 +10,34 @@ export const SECOND_SEEDED_THREAD_ID = "77777777-7777-4777-8777-777777777777";
 export const HOST_SECOND_SEEDED_THREAD_ID =
   "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 export const PROFILE_RENDER_TIMEOUT_MS = 15_000;
+
+export function parseLocalSupabaseEnv() {
+  const output = execFileSync("supabase", ["status", "-o", "env"], {
+    encoding: "utf8",
+  });
+
+  return output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .reduce<Record<string, string>>((env, line) => {
+      const separatorIndex = line.indexOf("=");
+      if (separatorIndex === -1) return env;
+
+      const key = line.slice(0, separatorIndex);
+      const value = line.slice(separatorIndex + 1).replace(/^"(.*)"$/, "$1");
+      env[key] = value;
+      return env;
+    }, {});
+}
+
+export function createAdminClient(): SupabaseClient {
+  const env = parseLocalSupabaseEnv();
+
+  return createClient(env.API_URL, env.SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 type MockGeocodingFeatureOptions = {
   id?: string;

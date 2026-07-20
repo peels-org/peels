@@ -3,6 +3,7 @@ import {
   DONOR_EMAIL,
   HOST_EMAIL,
   PROFILE_RENDER_TIMEOUT_MS,
+  createAdminClient,
   createMockGeocodingFeature,
   delayServerActionRequests,
   mockMapTilerGeocoding,
@@ -10,6 +11,7 @@ import {
 } from "./helpers";
 
 const BUSINESS_LISTING_EDIT_PATH = "/profile/listings/demo-inner-west-cafe";
+const BUSINESS_LISTING_SLUG = "demo-inner-west-cafe";
 const MAP_MULTI_PHOTO_LISTING_PATH = "/map?listing=demo-marrickville-compost";
 const PUBLIC_MULTI_PHOTO_LISTING_PATH = "/listings/demo-marrickville-compost";
 const RESIDENTIAL_LISTING_EDIT_PATH =
@@ -160,6 +162,73 @@ test("listing location search picks a geocoding result", async ({ page }) => {
     timeout: 10_000,
   });
   await expect(page.getByText(/Drag the pin/)).toBeVisible();
+});
+
+test("listing edit clears a legacy country placeholder to null and round-trips ISO codes", async ({
+  page,
+}) => {
+  const admin = createAdminClient();
+
+  const { error: seedPlaceholderError } = await admin
+    .from("listings")
+    .update({ country_code: "initial" })
+    .eq("slug", BUSINESS_LISTING_SLUG);
+
+  expect(seedPlaceholderError).toBeNull();
+
+  try {
+    await signIn(page, {
+      email: HOST_EMAIL,
+      redirectTo: BUSINESS_LISTING_EDIT_PATH,
+    });
+
+    const listingWriteForm = page.getByTestId("listing-write-form");
+    await expect(listingWriteForm).toBeVisible();
+    await expect(page.locator("#country")).toHaveValue("initial");
+
+    await Promise.all([
+      page.waitForURL(/\/listings\/demo-inner-west-cafe\?status=updated$/),
+      page.getByTestId("listing-write-submit").click(),
+    ]);
+
+    const { data: clearedListing, error: clearedError } = await admin
+      .from("listings")
+      .select("country_code")
+      .eq("slug", BUSINESS_LISTING_SLUG)
+      .single();
+
+    expect(clearedError).toBeNull();
+    expect(clearedListing?.country_code).toBeNull();
+
+    await page.goto(BUSINESS_LISTING_EDIT_PATH);
+    await expect(listingWriteForm).toBeVisible();
+    await expect(page.locator("#country")).toHaveValue("initial");
+    await page.locator("#country").selectOption("NZ");
+
+    await Promise.all([
+      page.waitForURL(/\/listings\/demo-inner-west-cafe\?status=updated$/),
+      page.getByTestId("listing-write-submit").click(),
+    ]);
+
+    const { data: updatedListing, error: updatedError } = await admin
+      .from("listings")
+      .select("country_code")
+      .eq("slug", BUSINESS_LISTING_SLUG)
+      .single();
+
+    expect(updatedError).toBeNull();
+    expect(updatedListing?.country_code).toBe("NZ");
+
+    await page.goto(BUSINESS_LISTING_EDIT_PATH);
+    await expect(page.locator("#country")).toHaveValue("NZ");
+  } finally {
+    const { error: restoreError } = await admin
+      .from("listings")
+      .update({ country_code: "AU" })
+      .eq("slug", BUSINESS_LISTING_SLUG);
+
+    expect(restoreError).toBeNull();
+  }
 });
 
 test("listing edit saves and restores seeded business fields", async ({
