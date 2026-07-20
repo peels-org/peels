@@ -370,9 +370,10 @@ const GeocodingSearch = forwardRef<GeocodingSearchHandle, GeocodingSearchProps>(
             }}
             onChange={(event) => {
               const nextQuery = event.target.value;
-              setQuery(nextQuery);
+              const normalisedQuery = nextQuery.trim() ? nextQuery : "";
+              setQuery(normalisedQuery);
               setActiveIndex(0);
-              if (!nextQuery.trim()) {
+              if (!normalisedQuery) {
                 onClear?.();
               }
             }}

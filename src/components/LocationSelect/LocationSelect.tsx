@@ -274,6 +274,7 @@ export default function LocationSelect({
   const t = useTranslations();
   const mapRef = useRef<MapRef | null>(null);
   const inputRef = useRef<GeocodingSearchHandle | null>(null);
+  const reverseGeocodeRequestIdRef = useRef(0);
   const areaNamePickerId = useId();
   // Only set when the user picks from the dropdown — never when IP applies.
   const userChoseCountryRef = useRef(false);
@@ -398,10 +399,18 @@ export default function LocationSelect({
 
       setCoordinates(nextCoordinates);
 
+      const requestId = reverseGeocodeRequestIdRef.current + 1;
+      reverseGeocodeRequestIdRef.current = requestId;
+
       const reverseFeatures = await reverseGeocodeFeatures(
         nextCoordinates.longitude,
         nextCoordinates.latitude
       );
+
+      if (reverseGeocodeRequestIdRef.current !== requestId) {
+        return;
+      }
+
       const nextOptions = collectPublicAreaNameOptions(reverseFeatures);
       const nextAreaNameMatch = derivePublicAreaName(reverseFeatures);
       const displayName =
@@ -416,6 +425,7 @@ export default function LocationSelect({
   );
 
   const handleClearSearch = useCallback(() => {
+    reverseGeocodeRequestIdRef.current += 1;
     onLocationInteract?.();
     setCoordinates(null);
     setAreaName("");
@@ -436,10 +446,18 @@ export default function LocationSelect({
       };
 
       const displayName = getSelectedFeatureDisplayName(feature);
+      const requestId = reverseGeocodeRequestIdRef.current + 1;
+      reverseGeocodeRequestIdRef.current = requestId;
+
       const reverseFeatures = await reverseGeocodeFeatures(
         nextCoordinates.longitude,
         nextCoordinates.latitude
       );
+
+      if (reverseGeocodeRequestIdRef.current !== requestId) {
+        return;
+      }
+
       const nextOptions = collectPublicAreaNameOptionsFromSelectedFeature(
         feature,
         reverseFeatures
