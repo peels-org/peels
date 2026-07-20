@@ -30,6 +30,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { normaliseListingCountryCode } from "@/utils/listingCountry";
 
 function translateFirstNameFieldError(
   t: Awaited<ReturnType<typeof getTranslations>>,
@@ -87,6 +88,7 @@ function getListingMutationData(
   } = listingData;
   return {
     ...mutationData,
+    country_code: normaliseListingCountryCode(listingData.country_code),
     owner_id: ownerId,
   };
 }
@@ -254,7 +256,7 @@ async function updateExistingListingWithMediaReferences({
       p_avatar: normaliseListingAvatar(listingData.avatar),
       p_accepted_items: listingData.accepted_items,
       p_area_name: listingData.area_name,
-      p_country_code: listingData.country_code,
+      p_country_code: normaliseListingCountryCode(listingData.country_code),
       p_description: listingData.description,
       p_is_stub: listingData.is_stub ?? null,
       p_links: listingData.links,

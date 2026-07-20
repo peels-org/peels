@@ -21,6 +21,7 @@ import type {
   ListingWriteFieldErrors,
   ListingWriteProfile,
 } from "@/types/listing";
+import { normaliseListingCountryCode } from "@/utils/listingCountry";
 
 export type ListingWriteFormValues = {
   acceptedItems: string[];
@@ -153,7 +154,7 @@ export function buildListingDraft({
     description: values.description,
     location: `POINT(${values.coordinates.longitude} ${values.coordinates.latitude})`,
     area_name: values.areaName,
-    country_code: values.countryCode,
+    country_code: normaliseListingCountryCode(values.countryCode),
     accepted_items: values.acceptedItems.filter((item) => item.trim() !== ""),
     rejected_items: values.rejectedItems.filter((item) => item.trim() !== ""),
     photos: initialListing ? values.photos : values.pendingPhotos,

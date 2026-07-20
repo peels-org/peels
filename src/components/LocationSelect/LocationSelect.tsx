@@ -29,6 +29,7 @@ import InputHint from "@/components/InputHint";
 
 import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
+import { LISTING_COUNTRY_PLACEHOLDER } from "@/utils/listingCountry";
 
 const InputHintComponent = InputHint as any;
 
@@ -307,11 +308,11 @@ export default function LocationSelect({
         {/* TODO: Accessibility: label currently covers both select and geocoding control but not yet via htmlFor. Fix or make a separate visually hidden one for the geocoding control */}
         <Select
           id="country"
-          value={countryCode ? countryCode : "initial"}
+          value={countryCode ? countryCode : LISTING_COUNTRY_PLACEHOLDER}
           onChange={handleCountryChange}
           required={true}
         >
-          <option disabled={true} value="initial">
+          <option disabled={true} value={LISTING_COUNTRY_PLACEHOLDER}>
             {t("Listings.form.selectCountry")}
           </option>
           {countries.map((country) => (
