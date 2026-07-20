@@ -136,8 +136,8 @@ async function main() {
     console.log(`• ${sample.query}`);
     console.log(`  note: ${sample.note}`);
     console.log(`  top match: ${top.place_name}`);
-    console.log(`  from selected: ${fromSelected?.name ?? "(null)"}`);
-    console.log(`  from reverse:  ${fromReverse?.name ?? "(null)"}`);
+    console.log(`  from selected: ${fromSelected ?? "(null)"}`);
+    console.log(`  from reverse:  ${fromReverse ?? "(null)"}`);
     console.log("");
   }
 }

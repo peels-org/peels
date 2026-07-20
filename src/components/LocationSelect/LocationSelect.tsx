@@ -42,9 +42,7 @@ import {
   collectPublicAreaNameOptionsFromSelectedFeature,
   derivePublicAreaName,
   getSelectedFeatureDisplayName,
-  isInstitutionalPlaceLabel,
   type ListingAreaNameFeature,
-  type PublicAreaNameOption,
 } from "@/utils/listingAreaName";
 
 const InputHintComponent = InputHint as any;
@@ -286,9 +284,7 @@ export default function LocationSelect({
   const placeholderText =
     initialPlaceholderText || t("Listings.form.locationPlaceholder");
   const [searchStatusMessage, setSearchStatusMessage] = useState("");
-  const [areaNameOptions, setAreaNameOptions] = useState<
-    PublicAreaNameOption[]
-  >([]);
+  const [areaNameOptions, setAreaNameOptions] = useState<string[]>([]);
   const [isAreaNamePickerOpen, setIsAreaNamePickerOpen] = useState(false);
 
   // 1) Detect country from IP once (for new listings).
@@ -344,7 +340,7 @@ export default function LocationSelect({
   }, [detectedCountryCode, setCountryCode]);
 
   const applyAreaNameOptions = useCallback(
-    (nextOptions: PublicAreaNameOption[], preferredName?: string) => {
+    (nextOptions: string[], preferredName?: string) => {
       setAreaNameOptions(nextOptions);
 
       if (!nextOptions.length) {
@@ -354,14 +350,9 @@ export default function LocationSelect({
       }
 
       const preferredStillValid =
-        preferredName &&
-        nextOptions.some((option) => option.name === preferredName);
+        preferredName && nextOptions.includes(preferredName);
 
-      const defaultName =
-        nextOptions.find((option) => !isInstitutionalPlaceLabel(option.name))
-          ?.name ?? nextOptions[0].name;
-
-      setAreaName(preferredStillValid ? preferredName : defaultName);
+      setAreaName(preferredStillValid ? preferredName : nextOptions[0]);
     },
     [setAreaName]
   );
@@ -412,10 +403,9 @@ export default function LocationSelect({
       }
 
       const nextOptions = collectPublicAreaNameOptions(reverseFeatures);
-      const nextAreaNameMatch = derivePublicAreaName(reverseFeatures);
       const displayName =
         reverseGeocodeDisplayName(reverseFeatures) ||
-        nextAreaNameMatch?.name ||
+        derivePublicAreaName(reverseFeatures) ||
         "";
 
       applyAreaNameOptions(nextOptions, areaName);
@@ -573,8 +563,8 @@ export default function LocationSelect({
               data-testid="listing-area-name-options"
             >
               {areaNameOptions.map((option) => (
-                <AreaNameRadio key={option.name} value={option.name}>
-                  <span>{option.name}</span>
+                <AreaNameRadio key={option} value={option}>
+                  <span>{option}</span>
                   <AreaNameCheckIcon
                     className="area-name-check-icon"
                     aria-hidden="true"
