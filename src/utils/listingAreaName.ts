@@ -50,7 +50,7 @@ const STREET_FEATURE_TYPES = new Set(["address", "road"]);
 
 /**
  * MapTiler often types campuses/landmarks as `place` rather than `poi`
- * (e.g. “University of Exampleton”). Keep them as Change… options, but prefer
+ * (e.g. “University College London”). Keep them as Change… options, but prefer
  * ordinary neighbourhood/city labels as the default.
  */
 const INSTITUTIONAL_PLACE_NAME_PATTERN =

@@ -524,7 +524,8 @@ export default function LocationSelect({
           <AreaNamePicker id={areaNamePickerId}>
             <AreaNameRadioGroup
               value={areaName}
-              onChange={(value: string) => {
+              onChange={(value) => {
+                if (typeof value !== "string") return;
                 onLocationInteract?.();
                 setAreaName(value);
               }}

@@ -41,38 +41,38 @@ function loadEnvKey() {
 
 const SAMPLES = [
   {
-    query: "Fitzroy, Melbourne",
-    country: "AU",
-    note: "Inner-suburb neighbourhood",
-  },
-  {
-    query: "42 Oxford Street, Darlinghurst NSW",
-    country: "AU",
-    note: "Sydney inner suburb street",
-  },
-  {
-    query: "5 Cuba Street, Wellington",
-    country: "NZ",
-    note: "Te Aro / Wellington",
-  },
-  {
-    query: "123 Valencia Street, San Francisco",
+    query: "28 E 20th Street, New York",
     country: "US",
-    note: "Mission District / SF",
+    note: "Theodore Roosevelt Birthplace NHS",
   },
   {
-    query: "Bergmannstraße 10, Berlin",
-    country: "DE",
-    note: "Kreuzberg / Berlin",
+    query: "28 Great Russell Street, London",
+    country: "GB",
+    note: "British Museum / Bloomsbury",
   },
   {
-    query: "Carrer de Verdi 8, Barcelona",
-    country: "ES",
-    note: "Gràcia / Barcelona",
-  },
-  {
-    query: "University of Melbourne",
+    query: "Circular Quay Station, Sydney",
     country: "AU",
+    note: "Public transit POI with neighbourhood context",
+  },
+  {
+    query: "55 Cable Street, Wellington",
+    country: "NZ",
+    note: "Te Papa / Te Aro",
+  },
+  {
+    query: "Lindenstraße 9-14, Berlin",
+    country: "DE",
+    note: "Jewish Museum Berlin",
+  },
+  {
+    query: "Carrer de les Carolines 24, Barcelona",
+    country: "ES",
+    note: "Casa Vicens / Gràcia",
+  },
+  {
+    query: "University College London",
+    country: "GB",
     note: "Campus POI should not become the public label if context exists",
   },
 ];

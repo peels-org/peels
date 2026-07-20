@@ -23,39 +23,46 @@ function feature(
 }
 
 test("stripLeadingHouseNumber removes common AU/UK/US house numbers", () => {
-  assert.equal(stripLeadingHouseNumber("10 College Road"), "College Road");
+  assert.equal(
+    stripLeadingHouseNumber("28 Great Russell Street"),
+    "Great Russell Street"
+  );
   assert.equal(stripLeadingHouseNumber("12A Smith Street"), "Smith Street");
   assert.equal(stripLeadingHouseNumber("221B Baker Street"), "Baker Street");
   assert.equal(stripLeadingHouseNumber("Unit 4 High Street"), "High Street");
-  assert.equal(stripLeadingHouseNumber("College Road"), "College Road");
+  assert.equal(
+    stripLeadingHouseNumber("Great Russell Street"),
+    "Great Russell Street"
+  );
 });
 
 test("isInstitutionalPlaceLabel catches campuses typed as place", () => {
-  assert.equal(isInstitutionalPlaceLabel("University of Exampleton"), true);
-  assert.equal(isInstitutionalPlaceLabel("Exampleton"), false);
-  assert.equal(isInstitutionalPlaceLabel("Westfield"), false);
+  assert.equal(isInstitutionalPlaceLabel("University College London"), true);
+  assert.equal(isInstitutionalPlaceLabel("London"), false);
+  assert.equal(isInstitutionalPlaceLabel("Bloomsbury"), false);
 });
 
 test("isNoisyStreetLabel catches motorways and numbered routes", () => {
   assert.equal(isNoisyStreetLabel("Pacific Motorway"), true);
   assert.equal(isNoisyStreetLabel("A1079 Road (Great Britain)"), true);
-  assert.equal(isNoisyStreetLabel("College Road"), false);
+  assert.equal(isNoisyStreetLabel("Great Russell Street"), false);
 });
 
 test("UK campus-adjacent address defaults to neighbourhood; campus remains an option", () => {
+  // Near the British Museum / UCL — public landmarks, not private homes.
   const selected = feature({
-    id: "address.college-road",
-    text: "10 College Road",
-    place_name: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+    id: "address.great-russell-street",
+    text: "28 Great Russell Street",
+    place_name: "28 Great Russell Street, Bloomsbury, London, United Kingdom",
     place_type: ["address"],
     context: [
       feature({
-        id: "neighbourhood.westfield",
-        text: "Westfield",
+        id: "neighbourhood.bloomsbury",
+        text: "Bloomsbury",
       }),
       feature({
-        id: "place.exampleton",
-        text: "Exampleton",
+        id: "place.london",
+        text: "London",
       }),
       feature({
         id: "country.gb",
@@ -66,69 +73,70 @@ test("UK campus-adjacent address defaults to neighbourhood; campus remains an op
 
   const reverseFeatures = [
     feature({
-      id: "poi.university-of-exampleton",
-      text: "University of Exampleton",
-      place_name: "University of Exampleton, Exampleton, United Kingdom",
+      id: "poi.university-college-london",
+      text: "University College London",
+      place_name:
+        "University College London, Bloomsbury, London, United Kingdom",
       place_type: ["poi"],
     }),
     feature({
-      id: "neighbourhood.westfield",
-      text: "Westfield",
+      id: "neighbourhood.bloomsbury",
+      text: "Bloomsbury",
     }),
     feature({
-      id: "place.exampleton",
-      text: "Exampleton",
+      id: "place.london",
+      text: "London",
     }),
   ];
 
   assert.equal(
     derivePublicAreaNameFromSelectedFeature(selected)?.name,
-    "Westfield"
+    "Bloomsbury"
   );
-  assert.equal(derivePublicAreaName(reverseFeatures)?.name, "Westfield");
+  assert.equal(derivePublicAreaName(reverseFeatures)?.name, "Bloomsbury");
   assert.deepEqual(
     collectPublicAreaNameOptionsFromSelectedFeature(
       selected,
       reverseFeatures
     ).map((option) => option.name),
-    ["Westfield", "Exampleton", "University of Exampleton"]
+    ["Bloomsbury", "London", "University College London"]
   );
 });
 
 test("UK campus typed as place is offered; default is ordinary city over campus", () => {
   const selected = feature({
-    id: "address.college-road",
-    text: "10 College Road",
-    place_name: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+    id: "address.great-russell-street",
+    text: "28 Great Russell Street",
+    place_name: "28 Great Russell Street, Bloomsbury, London, United Kingdom",
     place_type: ["address"],
     context: [
       feature({
-        id: "place.university-of-exampleton",
-        text: "University of Exampleton",
+        id: "place.university-college-london",
+        text: "University College London",
         place_type: ["place"],
       }),
       feature({
-        id: "place.exampleton",
-        text: "Exampleton",
+        id: "place.london",
+        text: "London",
       }),
     ],
   });
 
   const reverseFeatures = [
     feature({
-      id: "place.university-of-exampleton",
-      text: "University of Exampleton",
+      id: "place.university-college-london",
+      text: "University College London",
       place_type: ["place"],
     }),
     feature({
-      id: "place.exampleton",
-      text: "Exampleton",
+      id: "place.london",
+      text: "London",
     }),
   ];
 
   assert.equal(
     derivePublicAreaNameFromSelectedFeature(selected, reverseFeatures)?.name,
-    "Exampleton"
+    "London"
   );
 
   assert.deepEqual(
@@ -136,15 +144,15 @@ test("UK campus typed as place is offered; default is ordinary city over campus"
       selected,
       reverseFeatures
     ).map((option) => option.name),
-    ["Exampleton", "University of Exampleton"]
+    ["London", "University College London"]
   );
 });
 
 test("campus-adjacent reverse offers city and university; never street or region", () => {
   const selected = feature({
-    id: "address.college-road",
-    text: "10 College Road",
-    place_name: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+    id: "address.great-russell-street",
+    text: "28 Great Russell Street",
+    place_name: "28 Great Russell Street, Bloomsbury, London, United Kingdom",
     place_type: ["address"],
     context: [
       feature({
@@ -160,22 +168,22 @@ test("campus-adjacent reverse offers city and university; never street or region
 
   const reverseFeatures = [
     feature({
-      id: "neighbourhood.westfield",
-      text: "Westfield",
+      id: "neighbourhood.bloomsbury",
+      text: "Bloomsbury",
     }),
     feature({
-      id: "place.exampleton",
-      text: "Exampleton",
+      id: "place.london",
+      text: "London",
       place_type: ["place"],
     }),
     feature({
-      id: "place.university-of-exampleton",
-      text: "University of Exampleton",
+      id: "place.university-college-london",
+      text: "University College London",
       place_type: ["place"],
     }),
     feature({
-      id: "road.ring-motorway",
-      text: "Ring Motorway",
+      id: "road.pacific-motorway",
+      text: "Pacific Motorway",
       place_type: ["road"],
     }),
     feature({
@@ -186,22 +194,22 @@ test("campus-adjacent reverse offers city and university; never street or region
 
   assert.equal(
     derivePublicAreaNameFromSelectedFeature(selected, reverseFeatures)?.name,
-    "Westfield"
+    "Bloomsbury"
   );
   assert.deepEqual(
     collectPublicAreaNameOptionsFromSelectedFeature(
       selected,
       reverseFeatures
     ).map((option) => option.name),
-    ["Westfield", "Exampleton", "University of Exampleton"]
+    ["Bloomsbury", "London", "University College London"]
   );
 });
 
 test("street-only context with no area features yields no public label", () => {
   const selected = feature({
-    id: "address.college-road",
-    text: "10 College Road",
-    place_name: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+    id: "address.great-russell-street",
+    text: "28 Great Russell Street",
+    place_name: "28 Great Russell Street, London, United Kingdom",
     place_type: ["address"],
     context: [
       feature({
@@ -225,10 +233,11 @@ test("street-only context with no area features yields no public label", () => {
 });
 
 test("AU street address defaults to city when suburb is missing", () => {
+  // Museum of Sydney — public civic address.
   const selected = feature({
-    id: "address.darlinghurst",
-    text: "42 Oxford Street",
-    place_name: "42 Oxford Street, Darlinghurst NSW, Australia",
+    id: "address.macquarie-street",
+    text: "37 Phillip Street",
+    place_name: "37 Phillip Street, Sydney NSW, Australia",
     place_type: ["address"],
     context: [
       feature({
@@ -260,14 +269,14 @@ test("AU street address defaults to city when suburb is missing", () => {
 
 test("AU POI pick uses neighbourhood from context; roads are not options", () => {
   const selected = feature({
-    id: "poi.riverside-station",
-    text: "Riverside Station",
-    place_name: "Riverside Station, Riverside, Sydney, Australia",
+    id: "poi.circular-quay-station",
+    text: "Circular Quay Station",
+    place_name: "Circular Quay Station, Circular Quay, Sydney, Australia",
     place_type: ["poi"],
     context: [
       feature({
-        id: "neighbourhood.riverside",
-        text: "Riverside",
+        id: "neighbourhood.circular-quay",
+        text: "Circular Quay",
       }),
       feature({
         id: "place.sydney",
@@ -278,8 +287,8 @@ test("AU POI pick uses neighbourhood from context; roads are not options", () =>
 
   const reverseFeatures = [
     feature({
-      id: "road.ring-motorway",
-      text: "Ring Motorway",
+      id: "road.pacific-motorway",
+      text: "Pacific Motorway",
       place_type: ["road"],
     }),
     feature({
@@ -290,50 +299,52 @@ test("AU POI pick uses neighbourhood from context; roads are not options", () =>
 
   assert.equal(
     derivePublicAreaNameFromSelectedFeature(selected, reverseFeatures)?.name,
-    "Riverside"
+    "Circular Quay"
   );
   assert.deepEqual(
     collectPublicAreaNameOptionsFromSelectedFeature(
       selected,
       reverseFeatures
     ).map((option) => option.name),
-    ["Riverside", "Sydney", "Riverside Station"]
+    ["Circular Quay", "Sydney", "Circular Quay Station"]
   );
 });
 
 test("US locality is preferred when neighbourhood is absent", () => {
+  // Theodore Roosevelt Birthplace National Historic Site.
   const selected = feature({
-    id: "address.mission",
-    text: "123 Valencia Street",
-    place_name: "123 Valencia Street, San Francisco, California, United States",
+    id: "address.roosevelt-birthplace",
+    text: "28 E 20th Street",
+    place_name: "28 E 20th Street, New York, New York, United States",
     place_type: ["address"],
     context: [
       feature({
-        id: "locality.mission-district",
-        text: "Mission District",
+        id: "locality.flatiron-district",
+        text: "Flatiron District",
       }),
       feature({
-        id: "place.san-francisco",
-        text: "San Francisco",
+        id: "place.new-york",
+        text: "New York",
       }),
       feature({
-        id: "region.ca",
-        text: "California",
+        id: "region.ny",
+        text: "New York",
       }),
     ],
   });
 
   assert.equal(
     derivePublicAreaNameFromSelectedFeature(selected)?.name,
-    "Mission District"
+    "Flatiron District"
   );
 });
 
 test("NZ suburb neighbourhood wins over city", () => {
+  // Te Papa / waterfront — public civic area.
   const selected = feature({
-    id: "address.te-aro",
-    text: "5 Cuba Street",
-    place_name: "5 Cuba Street, Te Aro, Wellington, New Zealand",
+    id: "address.cable-street",
+    text: "55 Cable Street",
+    place_name: "55 Cable Street, Te Aro, Wellington, New Zealand",
     place_type: ["address"],
     context: [
       feature({
@@ -354,10 +365,11 @@ test("NZ suburb neighbourhood wins over city", () => {
 });
 
 test("DE municipal_district is used when finer types are missing", () => {
+  // Jewish Museum Berlin area — public landmark street.
   const selected = feature({
-    id: "address.kreuzberg",
-    text: "10 Bergmannstraße",
-    place_name: "Bergmannstraße 10, Berlin, Germany",
+    id: "address.lindenstrasse",
+    text: "9-14 Lindenstraße",
+    place_name: "Lindenstraße 9-14, Berlin, Germany",
     place_type: ["address"],
     context: [
       feature({
@@ -378,10 +390,11 @@ test("DE municipal_district is used when finer types are missing", () => {
 });
 
 test("ES city is default when only city context exists", () => {
+  // Casa Vicens / Gaudí — public museum address in Gràcia.
   const selected = feature({
-    id: "address.gracia",
-    text: "8 Carrer de Verdi",
-    place_name: "Carrer de Verdi 8, Barcelona, Spain",
+    id: "address.casa-vicens",
+    text: "24 Carrer de les Carolines",
+    place_name: "Carrer de les Carolines 24, Barcelona, Spain",
     place_type: ["address"],
     context: [
       feature({
@@ -411,12 +424,12 @@ test("campus-only reverse can default to the campus when no city exists", () => 
   assert.equal(
     derivePublicAreaName([
       feature({
-        id: "poi.university-of-exampleton",
-        text: "University of Exampleton",
+        id: "poi.university-college-london",
+        text: "University College London",
         place_type: ["poi"],
       }),
     ])?.name,
-    "University of Exampleton"
+    "University College London"
   );
 });
 
@@ -424,16 +437,16 @@ test("institutional place-only reverse falls through to a non-campus place", () 
   assert.equal(
     derivePublicAreaName([
       feature({
-        id: "place.university-of-exampleton",
-        text: "University of Exampleton",
+        id: "place.university-college-london",
+        text: "University College London",
         place_type: ["place"],
       }),
       feature({
-        id: "place.exampleton",
-        text: "Exampleton",
+        id: "place.london",
+        text: "London",
         place_type: ["place"],
       }),
     ])?.name,
-    "Exampleton"
+    "London"
   );
 });

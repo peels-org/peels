@@ -122,28 +122,28 @@ test("listing location search picks a geocoding result", async ({ page }) => {
   await mockMapTilerGeocoding(
     page,
     createMockGeocodingFeature({
-      id: "poi.riverside-station",
-      text: "Riverside Station",
-      placeName: "Riverside Station, Riverside, Sydney, Australia",
+      id: "poi.circular-quay-station",
+      text: "Circular Quay Station",
+      placeName: "Circular Quay Station, Circular Quay, Sydney, Australia",
       placeType: ["poi"],
       context: [
         {
-          id: "neighbourhood.riverside",
-          text: "Riverside",
+          id: "neighbourhood.circular-quay",
+          text: "Circular Quay",
         },
         {
           id: "place.sydney",
           text: "Sydney",
         },
       ],
-      center: [151.2, -33.87],
+      center: [151.2108, -33.861],
     })
   );
 
   await expect(page.getByTestId("listing-write-form")).toBeVisible();
   await page.locator("#country").selectOption("AU");
   const searchInput = page.getByTestId("listing-location-search-input");
-  await searchInput.fill("Riverside");
+  await searchInput.fill("Circular Quay");
   await expect
     .poll(async () =>
       searchInput.evaluate((element) =>
@@ -151,20 +151,20 @@ test("listing location search picks a geocoding result", async ({ page }) => {
       )
     )
     .toBeGreaterThanOrEqual(16);
-  await page.getByRole("option", { name: /Riverside Station/ }).click();
+  await page.getByRole("option", { name: /Circular Quay Station/ }).click();
 
   await expect(
-    page.getByRole("option", { name: /Riverside Station/ })
+    page.getByRole("option", { name: /Circular Quay Station/ })
   ).toHaveCount(0);
   // Search field keeps the selected place; public label is the neighbourhood.
   await expect(searchInput).toHaveValue(
-    "Riverside Station, Riverside, Sydney, Australia"
+    "Circular Quay Station, Circular Quay, Sydney, Australia"
   );
   await expect(page.getByTestId("listing-public-area-label")).toContainText(
-    "Riverside"
+    "Circular Quay"
   );
   await expect(page.getByTestId("listing-public-area-label")).not.toContainText(
-    "Riverside Station"
+    "Circular Quay Station"
   );
   await expect(page.locator(".maplibregl-canvas")).toBeVisible({
     timeout: 10_000,
@@ -182,21 +182,21 @@ test("listing location search offers alternate public area labels", async ({
   await mockMapTilerGeocoding(
     page,
     createMockGeocodingFeature({
-      id: "address.college-road",
-      text: "10 College Road",
-      placeName: "10 College Road, Exampleton, EX1 2AB, United Kingdom",
+      id: "address.great-russell-street",
+      text: "28 Great Russell Street",
+      placeName: "28 Great Russell Street, Bloomsbury, London, United Kingdom",
       placeType: ["address"],
       context: [
         {
-          id: "neighbourhood.westfield",
-          text: "Westfield",
+          id: "neighbourhood.bloomsbury",
+          text: "Bloomsbury",
         },
         {
-          id: "place.exampleton",
-          text: "Exampleton",
+          id: "place.london",
+          text: "London",
         },
       ],
-      center: [-1.08, 53.96],
+      center: [-0.127, 51.5194],
       countryCode: "GB",
     })
   );
@@ -204,32 +204,32 @@ test("listing location search offers alternate public area labels", async ({
   await expect(page.getByTestId("listing-write-form")).toBeVisible();
   await page.locator("#country").selectOption("GB");
   const searchInput = page.getByTestId("listing-location-search-input");
-  await searchInput.fill("10 College Road");
-  await page.getByRole("option", { name: /10 College Road/ }).click();
+  await searchInput.fill("28 Great Russell Street");
+  await page.getByRole("option", { name: /28 Great Russell Street/ }).click();
 
   await expect(searchInput).toHaveValue(
-    "10 College Road, Exampleton, EX1 2AB, United Kingdom"
+    "28 Great Russell Street, Bloomsbury, London, United Kingdom"
   );
   await expect(page.getByTestId("listing-public-area-label")).toContainText(
-    "Westfield"
+    "Bloomsbury"
   );
   await page.getByTestId("listing-area-name-change").click();
   await expect(page.getByTestId("listing-area-name-options")).toBeVisible();
   await expect(page.getByTestId("listing-area-name-options")).toContainText(
-    "Exampleton"
+    "London"
   );
   await expect(page.getByTestId("listing-area-name-options")).toContainText(
-    "Westfield"
+    "Bloomsbury"
   );
   await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
-    "College Road"
+    "Great Russell Street"
   );
   await expect(page.getByTestId("listing-area-name-options")).not.toContainText(
     "England"
   );
-  await page.getByRole("radio", { name: /^Exampleton$/ }).click();
+  await page.getByRole("radio", { name: /^London$/ }).click();
   await expect(page.getByTestId("listing-public-area-label")).toContainText(
-    "Exampleton"
+    "London"
   );
 });
 
