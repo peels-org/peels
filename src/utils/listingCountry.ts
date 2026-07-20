@@ -6,9 +6,12 @@ export function normaliseListingCountryCode(
 ): string | null {
   const trimmed = countryCode?.trim() ?? "";
 
-  if (!trimmed || trimmed === LISTING_COUNTRY_PLACEHOLDER) {
+  if (
+    !trimmed ||
+    trimmed.toLowerCase() === LISTING_COUNTRY_PLACEHOLDER.toLowerCase()
+  ) {
     return null;
   }
 
-  return trimmed;
+  return trimmed.toUpperCase();
 }

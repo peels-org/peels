@@ -12,9 +12,10 @@ test("normaliseListingCountryCode returns null for empty and placeholder values"
   assert.equal(normaliseListingCountryCode(""), null);
   assert.equal(normaliseListingCountryCode("   "), null);
   assert.equal(normaliseListingCountryCode(LISTING_COUNTRY_PLACEHOLDER), null);
+  assert.equal(normaliseListingCountryCode("INITIAL"), null);
 });
 
-test("normaliseListingCountryCode returns trimmed country codes", () => {
+test("normaliseListingCountryCode returns trimmed uppercase country codes", () => {
   assert.equal(normaliseListingCountryCode("GB"), "GB");
-  assert.equal(normaliseListingCountryCode(" au "), "au");
+  assert.equal(normaliseListingCountryCode(" au "), "AU");
 });

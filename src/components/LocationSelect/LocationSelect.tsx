@@ -310,7 +310,6 @@ export default function LocationSelect({
           id="country"
           value={countryCode ? countryCode : LISTING_COUNTRY_PLACEHOLDER}
           onChange={handleCountryChange}
-          required={true}
         >
           <option disabled={true} value={LISTING_COUNTRY_PLACEHOLDER}>
             {t("Listings.form.selectCountry")}
