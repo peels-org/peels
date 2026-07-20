@@ -29,7 +29,10 @@ import InputHint from "@/components/InputHint";
 
 import { styled } from "next-yak";
 import { useTranslations } from "next-intl";
-import { LISTING_COUNTRY_PLACEHOLDER } from "@/utils/listingCountry";
+import {
+  LISTING_COUNTRY_PLACEHOLDER,
+  normaliseListingCountryCode,
+} from "@/utils/listingCountry";
 
 const InputHintComponent = InputHint as any;
 
@@ -190,7 +193,7 @@ export default function LocationSelect({
   const [searchStatusMessage, setSearchStatusMessage] = useState("");
 
   useEffect(() => {
-    if (autoDetectCountry && !countryCode) {
+    if (autoDetectCountry && !normaliseListingCountryCode(countryCode)) {
       if (!mapTilerApiKey) {
         return;
       }
@@ -202,7 +205,11 @@ export default function LocationSelect({
           const response = await geolocation.info();
 
           // Only update state if component is still mounted and user hasn't changed the value
-          if (isMounted && !countryCode && response?.country_code) {
+          if (
+            isMounted &&
+            !normaliseListingCountryCode(countryCode) &&
+            response?.country_code
+          ) {
             setCountryCode(response.country_code);
           }
         } catch (error) {
@@ -328,7 +335,7 @@ export default function LocationSelect({
           ariaInvalid={error ? "true" : undefined}
           ariaLabel={t("Listings.form.location")}
           clearLabel={t("Map.searchClear")}
-          countryCode={countryCode}
+          countryCode={normaliseListingCountryCode(countryCode)}
           error={error}
           errorMessage={t("Map.searchError")}
           inputTestId="listing-location-search-input"
