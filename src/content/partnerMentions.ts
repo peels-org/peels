@@ -77,6 +77,10 @@ export const councilMentions = [
     href: "https://www.lockyervalley.qld.gov.au/our-services/waste-management/reducing-food-waste",
   },
   {
+    name: "Maribyrnong City Council",
+    href: "https://www.maribyrnong.vic.gov.au/Residents/Bins-and-recycling/What-goes-into-my-bin/Food-and-Garden-Organics#:~:text=Search%20the%C2%A0Peels%20website%C2%A0to%20find%20households%20and%20community%20gardens%20accepting%20food%20scraps.",
+  },
+  {
     name: "Maroondah City Council",
     href: "https://www.maroondah.vic.gov.au/Residents-property/Waste-recycling/How-to-dispose-of-unwanted-items/A-to-Z-of-waste-disposal-guide/Food-and-food-scraps#:~:text=Ph:%C2%A09870%202602%C2%A0-,Peels%20app,-Find%20a%20neighbour",
   },
