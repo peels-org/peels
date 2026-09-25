@@ -1,18 +1,13 @@
-import { forgotPasswordAction } from "@/app/actions";
-
+import ForgotPasswordForm from "@/components/ForgotPasswordForm";
 import FormHeader from "@/components/FormHeader";
 import FormMessage, { Message } from "@/components/FormMessage";
-import SubmitButton from "@/components/SubmitButton";
 import Form from "@/components/Form";
-import Field from "@/components/Field";
-import Input from "@/components/Input";
-import Label from "@/components/Label";
-import SupportErrorMessage from "@/components/SupportErrorMessage";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 export default async function ForgotPassword(props: {
-  searchParams: Promise<Message & { support_reference?: string }>;
+  searchParams: Promise<
+    Message & { email?: string; support_reference?: string }
+  >;
 }) {
   const searchParams = await props.searchParams;
   const t = await getTranslations();
@@ -30,43 +25,22 @@ export default async function ForgotPassword(props: {
       </>
     );
   }
+
   return (
     <>
       <FormHeader button="back">
         <h1>{t("Auth.forgotPassword.title")}</h1>
         <p>{t("Auth.forgotPassword.body")}</p>
       </FormHeader>
-      <Form action={forgotPasswordAction}>
-        <Field>
-          <Label htmlFor="email">{t("Common.email")}</Label>
-          <Input
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            required={true}
-          />
-        </Field>
-
-        {searchParams.error && (
-          <FormMessage
-            message={{
-              error: searchParams.support_reference ? (
-                <SupportErrorMessage
-                  message={String(searchParams.error)}
-                  pageUrl="/forgot-password"
-                  scope="auth"
-                  supportReference={searchParams.support_reference}
-                />
-              ) : (
-                searchParams.error
-              ),
-            }}
-          />
-        )}
-        <SubmitButton pendingText={t("Status.emailing")} width="full">
-          {t("Actions.emailLink")}
-        </SubmitButton>
-      </Form>
+      <ForgotPasswordForm
+        defaultEmail={searchParams.email}
+        error={
+          typeof searchParams.error === "string"
+            ? searchParams.error
+            : undefined
+        }
+        supportReference={searchParams.support_reference}
+      />
     </>
   );
 }

@@ -31,6 +31,8 @@ type HookPayload = {
   user: {
     email: string;
     new_email?: string;
+    email_confirmed_at?: string | null;
+    created_at?: string;
     user_metadata?: {
       first_name?: string;
       preferred_locale?: string;
@@ -43,6 +45,31 @@ type HookPayload = {
     email_action_type: string;
   };
 };
+
+const RECOVERY_SUPPRESS_WINDOW_MS = 60 * 60 * 1000;
+
+const isEmailConfirmed = (user: HookPayload["user"]) =>
+  isNonEmptyString(user.email_confirmed_at);
+
+const isAccountYoungerThan = (
+  createdAt: string | undefined,
+  windowMs: number
+) => {
+  if (!isNonEmptyString(createdAt)) {
+    return false;
+  }
+
+  const createdAtMs = Date.parse(createdAt);
+  if (Number.isNaN(createdAtMs)) {
+    return false;
+  }
+
+  return Date.now() - createdAtMs < windowMs;
+};
+
+const shouldSuppressRecoveryEmail = (user: HookPayload["user"]) =>
+  !isEmailConfirmed(user) &&
+  isAccountYoungerThan(user.created_at, RECOVERY_SUPPRESS_WINDOW_MS);
 
 type PreparedEmail = {
   to: string;
@@ -435,6 +462,20 @@ Deno.serve(async (req) => {
       email_action_type: emailActionType,
       duration_ms: Date.now() - startedAt,
     });
+
+    if (
+      emailActionType === "recovery" &&
+      shouldSuppressRecoveryEmail(hookPayload.user)
+    ) {
+      logEvent("auth_email_recovery_suppressed", {
+        hook_request_id: hookRequestId,
+        recipient_domain: getRecipientDomain(hookPayload.user.email),
+        reason: "unconfirmed_account_younger_than_one_hour",
+        duration_ms: Date.now() - startedAt,
+      });
+
+      return json(200, {});
+    }
 
     const sendEmailInBackground = async () => {
       const sendStartedAt = Date.now();
