@@ -465,8 +465,8 @@ export const signUpAction = async (formData: FormData, request?: Request) => {
     email,
     password,
     options: {
-      // Note: We validate Turnstile server-side above, so we don't pass captchaToken to Supabase
-      // This allows us to have granular control (only on sign-up, not sign-in/password reset)
+      // Note: We validate Turnstile server-side above, so we don't pass captchaToken to Supabase.
+      // Forgot-password uses the same app-side check in forgotPasswordAction.
       emailRedirectTo: `${origin || getBaseUrl()}/auth/complete?next=/profile&locale=${locale}`,
       data: {
         first_name,
@@ -560,16 +560,44 @@ export const signInAction = async (formData: FormData) => {
 // Very similar to the sendPasswordResetEmailAction
 export const forgotPasswordAction = async (formData: FormData) => {
   const t = await getTranslations("Errors");
-  const email = formData.get("email")?.toString();
+  const email = formData.get("email")?.toString()?.trim();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
   const callbackUrl = formData.get("callbackUrl")?.toString();
   const locale = resolveAuthLocale(
     formData.get("locale")?.toString() ?? (await getUserLocale())
   );
+  const captchaToken = formData.get("captcha_token")?.toString();
+  const turnstileEnabled = isTurnstileEnabled();
+  const shouldSkipTurnstile =
+    process.env.PEELS_E2E === "1" && formData.get("e2e_skip_turnstile") === "1";
+
+  const redirectWithError = (message: string, supportReference?: string) => {
+    const searchParams = new URLSearchParams({ error: message });
+    if (email) {
+      searchParams.set("email", email);
+    }
+    if (supportReference) {
+      searchParams.set("support_reference", supportReference);
+    }
+    return redirect(`/forgot-password?${searchParams}`);
+  };
 
   if (!email) {
     return encodedRedirect("error", "/forgot-password", t("emailRequired"));
+  }
+
+  if (turnstileEnabled && !shouldSkipTurnstile && !captchaToken) {
+    return redirectWithError(t("verificationChallenge"));
+  }
+
+  if (turnstileEnabled && !shouldSkipTurnstile && captchaToken) {
+    const validationResult = await validateTurnstileToken(captchaToken);
+    if (!validationResult.success) {
+      return redirectWithError(
+        validationResult.error || t("verificationFailed")
+      );
+    }
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -583,11 +611,10 @@ export const forgotPasswordAction = async (formData: FormData) => {
       message: t("generic"),
       scope: "auth",
     });
-    const searchParams = new URLSearchParams({
-      error: result.error ?? t("generic"),
-      support_reference: result.data.supportReference,
-    });
-    return redirect(`/forgot-password?${searchParams}`);
+    return redirectWithError(
+      result.error ?? t("generic"),
+      result.data.supportReference
+    );
   }
 
   if (callbackUrl) {
