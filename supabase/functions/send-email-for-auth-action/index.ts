@@ -36,7 +36,6 @@ type HookPayload = {
     user_metadata?: {
       first_name?: string;
       preferred_locale?: string;
-      email_verified?: boolean;
     };
   };
   email_data: {
@@ -49,13 +48,8 @@ type HookPayload = {
 
 const RECOVERY_SUPPRESS_WINDOW_MS = 60 * 60 * 1000;
 
-const isEmailConfirmed = (user: HookPayload["user"]) => {
-  if (isNonEmptyString(user.email_confirmed_at)) {
-    return true;
-  }
-
-  return user.user_metadata?.email_verified === true;
-};
+const isEmailConfirmed = (user: HookPayload["user"]) =>
+  isNonEmptyString(user.email_confirmed_at);
 
 const isAccountYoungerThan = (
   createdAt: string | undefined,
