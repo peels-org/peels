@@ -11,6 +11,7 @@ import {
   validateName,
   type FirstNameErrorCode,
 } from "@/lib/formValidation";
+import { isRequestFromTorExit } from "@/lib/torExit";
 import { getSafeHttpReferrer } from "@/utils/referrer";
 import { createClient } from "@/utils/supabase/server";
 import { createServiceRoleClient } from "@/utils/supabase/service";
@@ -377,10 +378,34 @@ export const signUpAction = async (formData: FormData, request?: Request) => {
   }
   const first_name = firstNameValidation.value;
   const newsletterPreference = formData.has("newsletter_preference"); // Will only be passed if input is checked when form submitted
+  const honeypotValue = formData.get("contact_website")?.toString()?.trim();
 
-  const supabase = await createClient();
   const headersList = await headers();
   const origin = headersList.get("origin");
+
+  // Only preserve non-sensitive fields
+  const preservedData = new URLSearchParams();
+  if (email) preservedData.set("email", email);
+  if (first_name) preservedData.set("first_name", first_name);
+
+  // Add error/success to the same URLSearchParams object
+  const redirectUrl = new URL("/sign-up", origin || getBaseUrl());
+  preservedData.forEach((value, key) => {
+    redirectUrl.searchParams.append(key, value);
+  });
+
+  // Honeypot field. Leave empty for real submissions.
+  if (honeypotValue) {
+    redirectUrl.searchParams.append("success", "true");
+    return redirect(redirectUrl.toString());
+  }
+
+  if (await isRequestFromTorExit(headersList)) {
+    redirectUrl.searchParams.append("error", t("generic"));
+    return redirect(redirectUrl.toString());
+  }
+
+  const supabase = await createClient();
 
   // Get attribution data
   const referrer = getSafeHttpReferrer(
@@ -401,17 +426,6 @@ export const signUpAction = async (formData: FormData, request?: Request) => {
     },
     // Log the full request URL if available
     url: request?.url,
-  });
-
-  // Only preserve non-sensitive fields
-  const preservedData = new URLSearchParams();
-  if (email) preservedData.set("email", email);
-  if (first_name) preservedData.set("first_name", first_name);
-
-  // Add error/success to the same URLSearchParams object
-  const redirectUrl = new URL("/sign-up", origin || getBaseUrl());
-  preservedData.forEach((value, key) => {
-    redirectUrl.searchParams.append(key, value);
   });
 
   const captchaToken = formData.get("captcha_token")?.toString();
@@ -561,8 +575,8 @@ export const signInAction = async (formData: FormData) => {
 export const forgotPasswordAction = async (formData: FormData) => {
   const t = await getTranslations("Errors");
   const email = formData.get("email")?.toString()?.trim();
-  const supabase = await createClient();
-  const origin = (await headers()).get("origin");
+  const headersList = await headers();
+  const origin = headersList.get("origin");
   const callbackUrl = formData.get("callbackUrl")?.toString();
   const locale = resolveAuthLocale(
     formData.get("locale")?.toString() ?? (await getUserLocale())
@@ -586,6 +600,12 @@ export const forgotPasswordAction = async (formData: FormData) => {
   if (!email) {
     return encodedRedirect("error", "/forgot-password", t("emailRequired"));
   }
+
+  if (await isRequestFromTorExit(headersList)) {
+    return redirectWithError(t("generic"));
+  }
+
+  const supabase = await createClient();
 
   if (turnstileEnabled && !shouldSkipTurnstile && !captchaToken) {
     return redirectWithError(t("verificationChallenge"));
