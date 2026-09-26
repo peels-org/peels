@@ -1,5 +1,6 @@
 const TOR_EXIT_LIST_URL = "https://check.torproject.org/torbulkexitlist";
 const CACHE_TTL_MS = 60 * 60 * 1000;
+const FAILURE_BACKOFF_MS = 60 * 1000;
 
 type TorExitCache = {
   expiresAt: number;
@@ -24,22 +25,25 @@ export function parseTorExitList(body: string): Set<string> {
   return ips;
 }
 
-/** Exported for unit tests. */
+/**
+ * Client IP for deployments behind Vercel.
+ * Prefer `x-forwarded-for`: on Vercel this is overwritten by the platform and
+ * is not taken from an untrusted client value.
+ * Exported for unit tests.
+ */
 export function getClientIpFromHeaders(
   headerList: Headers | { get(name: string): string | null }
 ): string | null {
-  const realIp = headerList.get("x-real-ip")?.trim();
-  if (realIp) {
-    return realIp;
-  }
-
   const forwarded = headerList.get("x-forwarded-for")?.trim();
-  if (!forwarded) {
-    return null;
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) {
+      return first;
+    }
   }
 
-  const first = forwarded.split(",")[0]?.trim();
-  return first || null;
+  const realIp = headerList.get("x-real-ip")?.trim();
+  return realIp || null;
 }
 
 async function fetchTorExitIps(): Promise<Set<string>> {
@@ -65,6 +69,12 @@ async function fetchTorExitIps(): Promise<Set<string>> {
       const ips = parseTorExitList(await response.text());
       cache = { ips, expiresAt: Date.now() + CACHE_TTL_MS };
       return ips;
+    } catch (error) {
+      // Fail open, but back off so every signup does not wait on a dead upstream.
+      console.error("Failed to load Tor exit list; allowing requests", error);
+      const empty = new Set<string>();
+      cache = { ips: empty, expiresAt: Date.now() + FAILURE_BACKOFF_MS };
+      return empty;
     } finally {
       inFlight = null;
     }
@@ -84,13 +94,8 @@ export async function isTorExitIp(
     return false;
   }
 
-  try {
-    const ips = await fetchTorExitIps();
-    return ips.has(ip);
-  } catch (error) {
-    console.error("Failed to load Tor exit list; allowing request", error);
-    return false;
-  }
+  const ips = await fetchTorExitIps();
+  return ips.has(ip);
 }
 
 export async function isRequestFromTorExit(

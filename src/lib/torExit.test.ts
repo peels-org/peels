@@ -19,19 +19,19 @@ test("parseTorExitList ignores comments and blank lines", () => {
   assert.equal(ips.has("172.105.20.12"), true);
 });
 
-test("getClientIpFromHeaders prefers x-real-ip", () => {
+test("getClientIpFromHeaders prefers x-forwarded-for first hop", () => {
   const headers = new Headers({
     "x-real-ip": "185.220.100.252",
     "x-forwarded-for": "1.2.3.4, 5.6.7.8",
   });
-  assert.equal(getClientIpFromHeaders(headers), "185.220.100.252");
+  assert.equal(getClientIpFromHeaders(headers), "1.2.3.4");
 });
 
-test("getClientIpFromHeaders falls back to first x-forwarded-for hop", () => {
+test("getClientIpFromHeaders falls back to x-real-ip", () => {
   const headers = new Headers({
-    "x-forwarded-for": " 1.2.3.4 , 5.6.7.8",
+    "x-real-ip": "185.220.100.252",
   });
-  assert.equal(getClientIpFromHeaders(headers), "1.2.3.4");
+  assert.equal(getClientIpFromHeaders(headers), "185.220.100.252");
 });
 
 test("isTorExitIp returns false when IP is missing", async () => {
@@ -57,15 +57,19 @@ test("isTorExitIp matches against a stubbed exit list", async () => {
   }
 });
 
-test("isTorExitIp fails open when the list fetch errors", async () => {
+test("isTorExitIp fails open and backs off when the list fetch errors", async () => {
   resetTorExitCacheForTests();
   const originalFetch = globalThis.fetch;
+  let fetchCount = 0;
   globalThis.fetch = (async () => {
+    fetchCount += 1;
     throw new Error("network down");
   }) as typeof fetch;
 
   try {
     assert.equal(await isTorExitIp("185.220.100.252"), false);
+    assert.equal(await isTorExitIp("185.220.100.252"), false);
+    assert.equal(fetchCount, 1);
   } finally {
     globalThis.fetch = originalFetch;
     resetTorExitCacheForTests();
