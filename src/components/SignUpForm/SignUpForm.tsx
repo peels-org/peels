@@ -222,6 +222,29 @@ export default function SignUpForm({
         </CheckboxRow>
       </CheckboxCluster>
 
+      {/* Visually hidden field kept for spam filtering. */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "-10000px",
+          top: "auto",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+        }}
+      >
+        <label htmlFor="contact_website">Website</label>
+        <input
+          id="contact_website"
+          name="contact_website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          defaultValue=""
+        />
+      </div>
+
       {turnstileEnabled && (
         <Field style={turnstileContainerStyle}>
           <Turnstile {...turnstile.turnstileProps} />
