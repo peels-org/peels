@@ -4,6 +4,7 @@ import {
   classifySignInError,
   isAccountExistsError,
   isAuthHookTimeout,
+  isWeakPasswordError,
 } from "./authError.ts";
 
 test("classifySignInError maps documented Supabase Auth codes", () => {
@@ -26,6 +27,14 @@ test("sign-up classifiers prefer codes and retain legacy compatibility", () => {
   assert.equal(isAccountExistsError({ code: "user_already_exists" }), true);
   assert.equal(
     isAccountExistsError({ message: "User already registered" }),
+    true
+  );
+  assert.equal(isWeakPasswordError({ code: "weak_password" }), true);
+  assert.equal(
+    isWeakPasswordError({
+      message:
+        "Password is known to be weak and easy to guess, please choose a different one.",
+    }),
     true
   );
   assert.equal(isAuthHookTimeout({ code: "hook_timeout_after_retry" }), true);

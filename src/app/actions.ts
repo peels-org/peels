@@ -5,6 +5,7 @@ import {
   classifySignInError,
   isAccountExistsError,
   isAuthHookTimeout,
+  isWeakPasswordError,
 } from "@/lib/authError";
 import {
   validateFirstName,
@@ -509,6 +510,11 @@ export const signUpAction = async (formData: FormData, request?: Request) => {
       return redirect(redirectUrl.toString());
     }
 
+    if (isWeakPasswordError(error ?? {})) {
+      redirectUrl.searchParams.append("error", t("weakPassword"));
+      return redirect(redirectUrl.toString());
+    }
+
     return createSupportError({
       context: { operation: "signUpAction" },
       error: error ?? new Error("No user returned from sign up"),
@@ -986,11 +992,11 @@ export const resetPasswordAction = async (formData: FormData) => {
       );
     }
 
-    if (error.code === "weak_password") {
+    if (isWeakPasswordError(error)) {
       return encodedRedirect(
         "error",
         "/profile/reset-password",
-        t("resetPasswordWeak")
+        t("weakPassword")
       );
     }
 
