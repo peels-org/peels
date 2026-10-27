@@ -34,6 +34,18 @@ export function isAccountExistsError(error: AuthErrorLike) {
   );
 }
 
+export function isWeakPasswordError(error: AuthErrorLike) {
+  if (error.code === "weak_password") {
+    return true;
+  }
+
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    message.includes("password is known to be weak") ||
+    message.includes("password should be at least")
+  );
+}
+
 export function isAuthHookTimeout(error: AuthErrorLike) {
   if (
     error.code === "hook_timeout" ||

@@ -148,6 +148,7 @@ export const FIELD_CONFIGS = {
     type: "password",
     placeholder: "••••••••••••",
     required: true,
-    minLength: 6,
+    // Match Supabase Auth password length policy (Have I Been Pwned checks remain server-side).
+    minLength: 8,
   },
 } as const;
