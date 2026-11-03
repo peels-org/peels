@@ -138,8 +138,9 @@ minimum_password_length = 6
 password_requirements = ""
 
 [auth.email]
-# Allow/disallow new user signups via email to your project.
-enable_signup = true
+# Allow/disallow email auth for this project. false turns the provider off for new and existing users.
+# To block only new sign-ups, set enable_signup = false under [auth] instead.
+enabled = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
@@ -170,8 +171,9 @@ otp_expiry = 3600
 # content_path = "./supabase/templates/invite.html"
 
 [auth.sms]
-# Allow/disallow new user signups via SMS to your project.
-enable_signup = false
+# Allow/disallow phone auth for this project. false turns the provider off for new and existing users.
+# To block only new sign-ups, set enable_signup = false under [auth] instead.
+enabled = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users

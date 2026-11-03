@@ -165,18 +165,20 @@ Peels already had schema history in the hosted project before migrations were co
 ```bash
 supabase login
 supabase link --project-ref mfnaqdyunuafbwukbbyr
-supabase migration fetch
-supabase db dump --schema public --file supabase/migrations/20251026060000_baseline_schema.sql
-supabase migration repair 20251026060000 --status applied --linked
+supabase migration fetch --remote
+supabase db dump --schema public --file supabase/migrations/20251026060000_baseline_schema.sql --remote
+supabase migration repair 20251026060000 --status applied --remote --yes
 ```
+
+`supabase link --project-ref` is unchanged in CLI v3. For other commands, `--remote` targets the linked hosted project (replacing `--linked` / `--project-ref` / `--db-url`). Hosted changes need `--yes` in non-interactive runs.
 
 The important bit is that the baseline migration must exist in Git before the first fetched remote migration, and the hosted project must be marked as already having that baseline. That keeps local resets reproducible without asking production to replay the whole schema.
 
 If you have custom `auth` or `storage` schema objects beyond the defaults, audit and pull those explicitly after the public baseline:
 
 ```bash
-supabase db pull auth_schema --schema auth
-supabase db pull storage_schema --schema storage
+supabase db pull auth_schema --schema auth --remote --yes
+supabase db pull storage_schema --schema storage --remote --yes
 ```
 
 Do not use the Supabase dashboard for routine schema changes once a migration exists in Git. If an emergency dashboard hotfix is unavoidable, pull it back into the repo immediately before making the next change.
