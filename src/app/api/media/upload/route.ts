@@ -12,7 +12,10 @@ import {
 import { createClient } from "@/utils/supabase/server";
 import { createServiceRoleClient } from "@/utils/supabase/service";
 import { resolveListingMutationOwner } from "@/utils/listingAccess";
-import { isSharedListingAvatar } from "@/utils/media/sharedListingAvatar";
+import {
+  isSharedListingAvatar,
+  isSharedOpenDataMediaPath,
+} from "@/utils/media/sharedListingMedia";
 import { reportSupportError } from "@/lib/supportError";
 
 export const runtime = "nodejs";
@@ -892,6 +895,10 @@ export async function DELETE(request: Request) {
 
       if (!updatedListing?.length) {
         return jsonError("Media not found", 404);
+      }
+
+      if (isSharedOpenDataMediaPath(path)) {
+        return NextResponse.json({ success: true });
       }
 
       try {

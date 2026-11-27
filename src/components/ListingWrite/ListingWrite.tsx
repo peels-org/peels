@@ -859,7 +859,7 @@ export default function ListingWrite({
           )}
 
           {profile?.is_admin && (
-            <FormSection>
+            <FormSection data-testid="listing-write-admin-section">
               <FormSectionHeader>
                 <h2>{t("Common.admin")}</h2>
                 <p>{t("Listings.form.adminHint")}</p>
