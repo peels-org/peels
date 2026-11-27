@@ -1,24 +1,9 @@
 -- Allow an acting admin to update another owner's stub listing.
 -- update_listing_with_media_references previously required profiles.id =
 -- p_owner_id to be admin, which fails when p_owner_id is the listing owner.
-
-drop function if exists public.update_listing_with_media_references(
-  bigint,
-  uuid,
-  text,
-  text,
-  text,
-  text,
-  text,
-  text,
-  text[],
-  text[],
-  text[],
-  boolean,
-  boolean,
-  text,
-  text[]
-);
+--
+-- Keep the existing 15-argument overload so old app instances keep working
+-- while new deploys pass p_actor_id. Do not drop the old signature first.
 
 create or replace function public.update_listing_with_media_references(
   p_listing_id bigint,
@@ -83,6 +68,71 @@ as $$
   returning public.listings.id, public.listings.slug, public.listings.type;
 $$;
 
+-- Legacy 15-argument callers (pre-p_actor_id app versions) keep working.
+create or replace function public.update_listing_with_media_references(
+  p_listing_id bigint,
+  p_owner_id uuid,
+  p_type text,
+  p_name text,
+  p_description text,
+  p_location text,
+  p_area_name text,
+  p_country_code text,
+  p_accepted_items text[],
+  p_rejected_items text[],
+  p_links text[],
+  p_visibility boolean,
+  p_is_stub boolean,
+  p_avatar text,
+  p_photos text[]
+)
+returns table (
+  id bigint,
+  slug text,
+  type text
+)
+language sql
+set search_path = public
+as $$
+  select *
+  from public.update_listing_with_media_references(
+    p_listing_id,
+    p_owner_id,
+    p_type,
+    p_name,
+    p_description,
+    p_location,
+    p_area_name,
+    p_country_code,
+    p_accepted_items,
+    p_rejected_items,
+    p_links,
+    p_visibility,
+    p_is_stub,
+    p_avatar,
+    p_photos,
+    null::uuid
+  );
+$$;
+
+revoke all on function public.update_listing_with_media_references(
+  bigint,
+  uuid,
+  text,
+  text,
+  text,
+  text,
+  text,
+  text,
+  text[],
+  text[],
+  text[],
+  boolean,
+  boolean,
+  text,
+  text[]
+) from anon, authenticated, public;
+
 revoke all on function public.update_listing_with_media_references(
   bigint,
   uuid,
@@ -101,6 +151,24 @@ revoke all on function public.update_listing_with_media_references(
   text[],
   uuid
 ) from anon, authenticated, public;
+
+grant execute on function public.update_listing_with_media_references(
+  bigint,
+  uuid,
+  text,
+  text,
+  text,
+  text,
+  text,
+  text,
+  text[],
+  text[],
+  text[],
+  boolean,
+  boolean,
+  text,
+  text[]
+) to service_role;
 
 grant execute on function public.update_listing_with_media_references(
   bigint,

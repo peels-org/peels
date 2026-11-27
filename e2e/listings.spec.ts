@@ -572,6 +572,8 @@ test("admin can edit another user's listing without taking ownership", async ({
   page,
 }) => {
   const admin = createAdminClient();
+  let originalDescription: string | null | undefined;
+
   const { error: promoteError } = await admin
     .from("profiles")
     .update({ is_admin: true })
@@ -588,6 +590,7 @@ test("admin can edit another user's listing without taking ownership", async ({
 
     expect(originalError).toBeNull();
     expect(originalListing?.owner_id).toBe(HOST_PROFILE_ID);
+    originalDescription = originalListing?.description ?? null;
 
     await signIn(page, {
       email: DONOR_EMAIL,
@@ -599,9 +602,9 @@ test("admin can edit another user's listing without taking ownership", async ({
     await expect(page.getByTestId("listing-write-admin-section")).toBeVisible();
 
     const descriptionInput = listingWriteForm.locator("#description").first();
-    const originalDescription = await descriptionInput.inputValue();
+    const currentDescription = await descriptionInput.inputValue();
     const updatedDescription =
-      originalDescription === ALTERNATE_BUSINESS_DESCRIPTION
+      currentDescription === ALTERNATE_BUSINESS_DESCRIPTION
         ? "A demo business listing so local development exercises the multi-listing host views and badges."
         : ALTERNATE_BUSINESS_DESCRIPTION;
 
@@ -621,14 +624,16 @@ test("admin can edit another user's listing without taking ownership", async ({
     expect(updatedError).toBeNull();
     expect(updatedListing?.owner_id).toBe(HOST_PROFILE_ID);
     expect(updatedListing?.description).toBe(updatedDescription);
-
-    const { error: restoreError } = await admin
-      .from("listings")
-      .update({ description: originalListing?.description ?? null })
-      .eq("slug", BUSINESS_LISTING_SLUG);
-
-    expect(restoreError).toBeNull();
   } finally {
+    if (originalDescription !== undefined) {
+      const { error: restoreError } = await admin
+        .from("listings")
+        .update({ description: originalDescription })
+        .eq("slug", BUSINESS_LISTING_SLUG);
+
+      expect(restoreError).toBeNull();
+    }
+
     const { error: demoteError } = await admin
       .from("profiles")
       .update({ is_admin: false })
