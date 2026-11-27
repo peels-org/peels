@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 const listingEditSelect = `
   id,
   owner_id,
+  owner_first_name,
   avatar,
   name,
   description,

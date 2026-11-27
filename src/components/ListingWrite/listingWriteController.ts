@@ -166,6 +166,7 @@ export function buildListingDraft({
 }
 
 export async function submitListingWrite({
+  canUpdateOwnerFirstName = true,
   draft,
   fallbackError,
   listingType,
@@ -173,6 +174,7 @@ export async function submitListingWrite({
   validatedName,
   t,
 }: {
+  canUpdateOwnerFirstName?: boolean;
   draft: ListingDraftInput | null;
   fallbackError: string;
   listingType: ListingType;
@@ -189,7 +191,11 @@ export async function submitListingWrite({
     };
   }
 
-  if (listingType === "residential" && profile?.first_name !== validatedName) {
+  if (
+    canUpdateOwnerFirstName &&
+    listingType === "residential" &&
+    profile?.first_name !== validatedName
+  ) {
     const formData = new FormData();
     formData.append("first_name", validatedName);
 

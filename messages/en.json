@@ -428,6 +428,8 @@
       "placeName": "Place name",
       "placeNamePlaceholder": "{type, select, business {Your business’ name} community {Your community’s name} other {Your place name}}",
       "yourFirstName": "Your first name",
+      "hostFirstName": "Host’s first name",
+      "hostFirstNameHint": "This belongs to the listing owner. Change it from their account, not here.",
       "location": "Location",
       "selectCountry": "Select a country",
       "locationPlaceholder": "Your street name or nearby",

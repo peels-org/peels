@@ -428,6 +428,8 @@
       "placeName": "Nombre del lugar",
       "placeNamePlaceholder": "{type, select, business {Nombre de tu negocio} community {Nombre de tu comunidad} other {Nombre del lugar}}",
       "yourFirstName": "Tu nombre",
+      "hostFirstName": "Nombre del anfitrión",
+      "hostFirstNameHint": "Esto pertenece a la persona dueña del anuncio. Cámbialo desde su cuenta, no aquí.",
       "location": "Ubicación",
       "selectCountry": "Selecciona un país",
       "locationPlaceholder": "Tu calle o un lugar cercano",

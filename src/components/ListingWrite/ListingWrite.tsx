@@ -141,8 +141,8 @@ function getListingWriteSavedValues({
   listingType,
   name,
   photos,
-  profile,
   rejectedItems,
+  residentialDisplayName,
   visibility,
 }: {
   acceptedItems: string[] | null | undefined;
@@ -156,8 +156,8 @@ function getListingWriteSavedValues({
   listingType: ListingType;
   name: string | null | undefined;
   photos: string[] | null | undefined;
-  profile: ListingWriteProfile | null;
   rejectedItems: string[] | null | undefined;
+  residentialDisplayName: string;
   visibility: boolean | null | undefined;
 }): ListingWriteSavedValues {
   return {
@@ -169,8 +169,7 @@ function getListingWriteSavedValues({
     description: description || "",
     isStub: Boolean(isStub),
     links: listingType === "residential" ? [] : normalizeTextList(links),
-    name:
-      listingType === "residential" ? profile?.first_name || "" : name || "",
+    name: listingType === "residential" ? residentialDisplayName : name || "",
     photos: photos ?? [],
     rejectedItems: normalizeTextList(rejectedItems),
     visibility: visibility ?? true,
@@ -188,6 +187,12 @@ export default function ListingWrite({
   const [isHydrated, setIsHydrated] = useState(false);
   const listingType =
     initialListing?.type || initialListingType || "residential";
+  const isManagingOthersListing = Boolean(
+    initialListing?.owner_id && user?.id && initialListing.owner_id !== user.id
+  );
+  const residentialDisplayName = isManagingOthersListing
+    ? initialListing?.owner_first_name || ""
+    : profile?.first_name || "";
   const submitMutation = useInlineMutation<
     ListingSubmitResult | ListingSubmitFailureData
   >();
@@ -205,7 +210,7 @@ export default function ListingWrite({
   );
   const [name, setName] = useState<string>(
     listingType === "residential"
-      ? profile?.first_name || ""
+      ? residentialDisplayName
       : initialListing?.name || ""
   );
   const [description, setDescription] = useState<string>(
@@ -275,8 +280,8 @@ export default function ListingWrite({
             listingType,
             name: initialListing.name,
             photos: initialListing.photos,
-            profile,
             rejectedItems: initialListing.rejected_items,
+            residentialDisplayName,
             visibility: initialListing.visibility,
           })
         : getListingWriteSavedValues({
@@ -289,13 +294,13 @@ export default function ListingWrite({
             isStub: false,
             links: [],
             listingType,
-            name: listingType === "residential" ? profile?.first_name : "",
+            name: listingType === "residential" ? residentialDisplayName : "",
             photos: [],
-            profile,
             rejectedItems: [],
+            residentialDisplayName,
             visibility: true,
           }),
-    [initialListing, listingType, profile]
+    [initialListing, listingType, residentialDisplayName]
   );
   const currentListingValues = useMemo(
     () =>
@@ -311,8 +316,8 @@ export default function ListingWrite({
         listingType,
         name,
         photos: initialListing ? photos : pendingPhotos,
-        profile,
         rejectedItems,
+        residentialDisplayName,
         visibility,
       }),
     [
@@ -329,8 +334,8 @@ export default function ListingWrite({
       name,
       pendingPhotos,
       photos,
-      profile,
       rejectedItems,
+      residentialDisplayName,
       visibility,
     ]
   );
@@ -491,6 +496,7 @@ export default function ListingWrite({
     const result = await submitMutation.run(
       () =>
         submitListingWrite({
+          canUpdateOwnerFirstName: !isManagingOthersListing,
           draft,
           fallbackError: t("Errors.genericLater"),
           listingType,
@@ -617,20 +623,27 @@ export default function ListingWrite({
             {listingType === "residential" ? (
               <Field>
                 <Label htmlFor="first_name">
-                  {t("Listings.form.yourFirstName")}
+                  {isManagingOthersListing
+                    ? t("Listings.form.hostFirstName")
+                    : t("Listings.form.yourFirstName")}
                 </Label>
                 <InputComponent
                   id="first_name"
                   name="first_name"
                   {...FIELD_CONFIGS.firstName}
                   value={name}
+                  readOnly={isManagingOthersListing}
+                  disabled={isManagingOthersListing}
                   onChange={(event: ChangeEvent<HTMLInputElement>) =>
                     setName(event.target.value)
                   }
                   error={errors.name ?? null}
                 />
                 <InputHint variant={errors.name ? "error" : "default"}>
-                  {errors.name || t("Profile.account.firstNameHint")}
+                  {errors.name ||
+                    (isManagingOthersListing
+                      ? t("Listings.form.hostFirstNameHint")
+                      : t("Profile.account.firstNameHint"))}
                 </InputHint>
               </Field>
             ) : (
