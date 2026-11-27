@@ -21,7 +21,7 @@ create or replace function public.update_listing_with_media_references(
   p_is_stub boolean,
   p_avatar text,
   p_photos text[],
-  p_actor_id uuid default null
+  p_actor_id uuid
 )
 returns table (
   id bigint,
