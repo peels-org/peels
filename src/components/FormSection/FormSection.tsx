@@ -1,7 +1,7 @@
 import { styled } from "next-yak";
 import { theme } from "@/styles/theme.yak";
 import { sharedSectionHeadingStyles } from "@/styles/commonStyles";
-import type { PropsWithChildren } from "react";
+import type { ComponentPropsWithoutRef, PropsWithChildren } from "react";
 
 const StyledSection = styled.section`
   display: flex;
@@ -17,8 +17,10 @@ const StyledSection = styled.section`
   }
 `;
 
-function FormSection({ children }: PropsWithChildren) {
-  return <StyledSection>{children}</StyledSection>;
+type FormSectionProps = PropsWithChildren<ComponentPropsWithoutRef<"section">>;
+
+function FormSection({ children, ...props }: FormSectionProps) {
+  return <StyledSection {...props}>{children}</StyledSection>;
 }
 
 export default FormSection;

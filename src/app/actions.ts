@@ -16,6 +16,7 @@ import { isRequestFromTorExit } from "@/lib/torExit";
 import { getSafeHttpReferrer } from "@/utils/referrer";
 import { createClient } from "@/utils/supabase/server";
 import { createServiceRoleClient } from "@/utils/supabase/service";
+import { resolveListingMutationOwner } from "@/utils/listingAccess";
 import { getBaseUrl } from "@/utils/url";
 import {
   encodedRedirect,
@@ -203,20 +204,20 @@ async function validatePendingMediaUploads({
 async function validatePersistedMediaUploads({
   avatar,
   listingId,
+  ownerId,
   photos,
-  userId,
 }: {
   avatar?: string | null;
   listingId: number;
+  ownerId: string;
   photos?: string[] | null;
-  userId: string;
 }) {
   const supabase = createServiceRoleClient();
   const { data: listing, error } = await supabase
     .from("listings")
     .select("avatar, photos")
     .eq("id", listingId)
-    .eq("owner_id", userId)
+    .eq("owner_id", ownerId)
     .maybeSingle<{ avatar: string | null; photos: string[] | null }>();
 
   if (error) throw error;
@@ -261,15 +262,18 @@ async function attachPendingListingMedia({
 }
 
 async function updateExistingListingWithMediaReferences({
+  actorId,
   listingData,
-  userId,
+  ownerId,
 }: {
+  actorId: string;
   listingData: ListingDraftInput & { id: number };
-  userId: string;
+  ownerId: string;
 }) {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
     .rpc("update_listing_with_media_references", {
+      p_actor_id: actorId,
       p_avatar: normaliseListingAvatar(listingData.avatar),
       p_accepted_items: listingData.accepted_items,
       p_area_name: listingData.area_name,
@@ -280,7 +284,7 @@ async function updateExistingListingWithMediaReferences({
       p_listing_id: listingData.id,
       p_location: listingData.location,
       p_name: listingData.name ?? null,
-      p_owner_id: userId,
+      p_owner_id: ownerId,
       p_photos: listingData.photos ?? [],
       p_rejected_items: listingData.rejected_items,
       p_type: listingData.type,
@@ -1304,6 +1308,8 @@ export const createOrUpdateListingAction = async (
       return actionError(t("savePhotosFailed"));
     }
 
+    let listingOwnerId = user.id;
+
     if (!listingData.id) {
       const pendingMediaIsValid = await validatePendingMediaUploads({
         avatar: listingData.avatar,
@@ -1315,11 +1321,23 @@ export const createOrUpdateListingAction = async (
         return actionError(t("savePhotosFailed"));
       }
     } else {
+      const mutationOwner = await resolveListingMutationOwner({
+        listingId: listingData.id,
+        supabase: createServiceRoleClient(),
+        userId: user.id,
+      });
+
+      if (!mutationOwner) {
+        return actionError(t("generic"));
+      }
+
+      listingOwnerId = mutationOwner.ownerId;
+
       const persistedMediaIsValid = await validatePersistedMediaUploads({
         avatar: listingData.avatar,
         listingId: listingData.id,
+        ownerId: listingOwnerId,
         photos: listingData.photos,
-        userId: user.id,
       });
 
       if (!persistedMediaIsValid) {
@@ -1332,8 +1350,9 @@ export const createOrUpdateListingAction = async (
     if (listingData.id) {
       try {
         data = await updateExistingListingWithMediaReferences({
+          actorId: user.id,
           listingData: listingData as ListingDraftInput & { id: number },
-          userId: user.id,
+          ownerId: listingOwnerId,
         });
       } catch (error) {
         return createSupportError({

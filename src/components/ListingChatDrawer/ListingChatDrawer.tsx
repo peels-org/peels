@@ -61,6 +61,7 @@ const StyledDrawerContent = styled(Drawer.Content)`
 type ListingChatDrawerProps = {
   isNested?: boolean;
   user: User | null;
+  isAdmin?: boolean;
   listing: Listing;
   isChatDrawerOpen: boolean;
   setIsChatDrawerOpen: (open: boolean) => void;
@@ -90,6 +91,7 @@ function NonModalDrawer({ isNested, ...rest }: SharedDrawerProps) {
 export default function ListingChatDrawer({
   isNested,
   user,
+  isAdmin = false,
   listing,
   isChatDrawerOpen,
   setIsChatDrawerOpen,
@@ -105,14 +107,15 @@ export default function ListingChatDrawer({
   const visibility = listing.visibility ?? undefined;
   const isStub = listing.is_stub ?? undefined;
   const isOpenDataMirrored = listing.is_open_data_mirrored ?? false;
+  const isOwner = Boolean(user && listing.owner_id === user.id);
 
   const drawerContent = (
     <>
       <ListingCtaContainer>
         {user ? (
-          listing.owner_id === user.id ? (
+          isOwner || isAdmin ? (
             <ListingCta
-              viewer="owner"
+              viewer={isOwner ? "owner" : "admin"}
               slug={listing.slug}
               visibility={visibility}
               isStub={isStub}

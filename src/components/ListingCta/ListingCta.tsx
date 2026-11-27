@@ -40,7 +40,7 @@ function ListingCta({
   isStub = false,
   isOpenDataMirrored = false,
 }: {
-  viewer?: "owner" | "guest" | null;
+  viewer?: "owner" | "admin" | "guest" | null;
   slug: string;
   visibility?: boolean;
   isStub?: boolean;
@@ -48,9 +48,13 @@ function ListingCta({
 }) {
   const t = useTranslations();
 
-  if (viewer === "owner") {
+  if (viewer === "owner" || viewer === "admin") {
     return (
-      <StyledListingCta data-testid="listing-owner-cta">
+      <StyledListingCta
+        data-testid={
+          viewer === "admin" ? "listing-admin-cta" : "listing-owner-cta"
+        }
+      >
         <Button
           variant="secondary"
           width="full"
@@ -59,10 +63,12 @@ function ListingCta({
           {t("Listings.edit.title")}
         </Button>
         <p>
-          {t("Listings.read.ownerNote", {
-            stub: isStub ? "true" : "false",
-            visibility: visibility ? "true" : "false",
-          })}
+          {viewer === "admin"
+            ? t("Listings.read.adminNote")
+            : t("Listings.read.ownerNote", {
+                stub: isStub ? "true" : "false",
+                visibility: visibility ? "true" : "false",
+              })}
         </p>
       </StyledListingCta>
     );

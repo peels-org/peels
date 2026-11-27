@@ -564,3 +564,81 @@ test("map listing photos open in a dedicated photo tab without disturbing the dr
 
   await photoPage.close();
 });
+
+const DONOR_PROFILE_ID = "9a0c62fc-bf50-4f45-ba6c-5b9051c2712a";
+const HOST_PROFILE_ID = "2c9ae20c-2469-4e60-84b3-39268697717c";
+
+test("admin can edit another user's listing without taking ownership", async ({
+  page,
+}) => {
+  const admin = createAdminClient();
+  let originalDescription: string | null | undefined;
+
+  const { error: promoteError } = await admin
+    .from("profiles")
+    .update({ is_admin: true })
+    .eq("id", DONOR_PROFILE_ID);
+
+  expect(promoteError).toBeNull();
+
+  try {
+    const { data: originalListing, error: originalError } = await admin
+      .from("listings")
+      .select("description, owner_id")
+      .eq("slug", BUSINESS_LISTING_SLUG)
+      .single();
+
+    expect(originalError).toBeNull();
+    expect(originalListing?.owner_id).toBe(HOST_PROFILE_ID);
+    originalDescription = originalListing?.description ?? null;
+
+    await signIn(page, {
+      email: DONOR_EMAIL,
+      redirectTo: BUSINESS_LISTING_EDIT_PATH,
+    });
+
+    const listingWriteForm = page.getByTestId("listing-write-form");
+    await expect(listingWriteForm).toBeVisible();
+    await expect(page.getByTestId("listing-write-admin-section")).toBeVisible();
+
+    const descriptionInput = listingWriteForm.locator("#description").first();
+    const currentDescription = await descriptionInput.inputValue();
+    const updatedDescription =
+      currentDescription === ALTERNATE_BUSINESS_DESCRIPTION
+        ? "A demo business listing so local development exercises the multi-listing host views and badges."
+        : ALTERNATE_BUSINESS_DESCRIPTION;
+
+    await descriptionInput.fill(updatedDescription);
+
+    await Promise.all([
+      page.waitForURL(/\/listings\/demo-inner-west-cafe\?status=updated$/),
+      page.getByTestId("listing-write-submit").click(),
+    ]);
+
+    const { data: updatedListing, error: updatedError } = await admin
+      .from("listings")
+      .select("description, owner_id")
+      .eq("slug", BUSINESS_LISTING_SLUG)
+      .single();
+
+    expect(updatedError).toBeNull();
+    expect(updatedListing?.owner_id).toBe(HOST_PROFILE_ID);
+    expect(updatedListing?.description).toBe(updatedDescription);
+  } finally {
+    if (originalDescription !== undefined) {
+      const { error: restoreError } = await admin
+        .from("listings")
+        .update({ description: originalDescription })
+        .eq("slug", BUSINESS_LISTING_SLUG);
+
+      expect(restoreError).toBeNull();
+    }
+
+    const { error: demoteError } = await admin
+      .from("profiles")
+      .update({ is_admin: false })
+      .eq("id", DONOR_PROFILE_ID);
+
+    expect(demoteError).toBeNull();
+  }
+});

@@ -67,7 +67,25 @@ serve(async (req) => {
 
     if (listingError) throw listingError;
 
-    if (!listing || listing.owner_id !== user.id) {
+    if (!listing) {
+      return jsonResponse({ error: "Listing not found" }, 404);
+    }
+
+    const isOwner = listing.owner_id === user.id;
+    let isAdmin = false;
+
+    if (!isOwner) {
+      const { data: profile, error: profileError } = await supabaseAdmin
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+      isAdmin = profile?.is_admin === true;
+    }
+
+    if (!isOwner && !isAdmin) {
       return jsonResponse({ error: "Listing not found" }, 404);
     }
 
@@ -75,11 +93,16 @@ serve(async (req) => {
     await deleteListingMedia(supabaseAdmin, listing);
 
     // Delete the listing
-    const { data: deletedListing, error: deleteError } = await supabaseAdmin
+    let deleteQuery = supabaseAdmin
       .from("listings")
       .delete()
-      .eq("id", listing.id)
-      .eq("owner_id", user.id)
+      .eq("id", listing.id);
+
+    if (!isAdmin) {
+      deleteQuery = deleteQuery.eq("owner_id", user.id);
+    }
+
+    const { data: deletedListing, error: deleteError } = await deleteQuery
       .select("id")
       .maybeSingle();
 
