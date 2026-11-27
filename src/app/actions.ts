@@ -262,15 +262,18 @@ async function attachPendingListingMedia({
 }
 
 async function updateExistingListingWithMediaReferences({
+  actorId,
   listingData,
   ownerId,
 }: {
+  actorId: string;
   listingData: ListingDraftInput & { id: number };
   ownerId: string;
 }) {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
     .rpc("update_listing_with_media_references", {
+      p_actor_id: actorId,
       p_avatar: normaliseListingAvatar(listingData.avatar),
       p_accepted_items: listingData.accepted_items,
       p_area_name: listingData.area_name,
@@ -1347,6 +1350,7 @@ export const createOrUpdateListingAction = async (
     if (listingData.id) {
       try {
         data = await updateExistingListingWithMediaReferences({
+          actorId: user.id,
           listingData: listingData as ListingDraftInput & { id: number },
           ownerId: listingOwnerId,
         });

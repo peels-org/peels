@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/utils/supabase/server";
 import { createServiceRoleClient } from "@/utils/supabase/service";
 import { resolveListingMutationOwner } from "@/utils/listingAccess";
+import { isSharedListingAvatar } from "@/utils/media/sharedListingAvatar";
 import { reportSupportError } from "@/lib/supportError";
 
 export const runtime = "nodejs";
@@ -575,11 +576,18 @@ export async function POST(request: Request) {
           return jsonError("Listing not found", 404);
         }
 
-        await removeStorageObject({
-          bucket: config.bucket,
-          path: listing.avatar,
-          supabase: storageSupabase,
-        });
+        const previousAvatarIsShared = await isSharedListingAvatar(
+          storageSupabase,
+          listing.avatar
+        );
+
+        if (!previousAvatarIsShared) {
+          await removeStorageObject({
+            bucket: config.bucket,
+            path: listing.avatar,
+            supabase: storageSupabase,
+          });
+        }
       }
     }
 
@@ -805,6 +813,12 @@ export async function DELETE(request: Request) {
 
       if (!updatedListing) {
         return jsonError("Media not found", 404);
+      }
+
+      const avatarIsShared = await isSharedListingAvatar(storageSupabase, path);
+
+      if (avatarIsShared) {
+        return NextResponse.json({ success: true });
       }
 
       try {
