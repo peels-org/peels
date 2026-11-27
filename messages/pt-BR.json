@@ -491,6 +491,7 @@
       "communityType": "um espaço comunitário",
       "signInForPhotos": "<link>Entre</link> para ver as fotos desta pessoa anfitriã.",
       "ownerNote": "Este é o seu próprio anúncio{stub, select, true {, marcado como rascunho} other {}}. {visibility, select, true {Está com tudo certo!} other {Você o ocultou do mapa, então só você consegue vê-lo agora.}}",
+      "adminNote": "Você está editando este anúncio como administrador do Peels.",
       "stubNote": "Este é um rascunho criado pela equipe do Peels. Confira as informações antes de visitar.",
       "stubMirroredNote": "Este anúncio vem de dados públicos oficiais. Horários e itens aceitos podem mudar. Confira tudo antes de visitar.",
       "stubClaim": "Você é a pessoa responsável? <link>Fale conosco</link> para reivindicar este anúncio ou pedir alterações.",

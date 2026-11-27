@@ -491,6 +491,7 @@
       "communityType": "a community spot",
       "signInForPhotos": "<link>Sign in</link> to see this host’s photos.",
       "ownerNote": "This is your own listing{stub, select, true {, marked as a stub} other {}}. {visibility, select, true {Lookin’ good!} other {You’ve hidden it from the map, so only you can see this right now.}}",
+      "adminNote": "You’re editing this listing as a Peels admin.",
       "stubNote": "This is a stub created by the Peels team. Double-check the listing information before visiting.",
       "stubMirroredNote": "This listing comes from official public data. Hours and accepted items can change. Double-check before you visit.",
       "stubClaim": "Are you the owner? <link>Reach out</link> to claim this listing or to request changes.",

@@ -11,6 +11,7 @@ import {
 } from "@/utils/media/policy";
 import { createClient } from "@/utils/supabase/server";
 import { createServiceRoleClient } from "@/utils/supabase/service";
+import { resolveListingMutationOwner } from "@/utils/listingAccess";
 import { reportSupportError } from "@/lib/supportError";
 
 export const runtime = "nodejs";
@@ -521,11 +522,26 @@ export async function POST(request: Request) {
 
     if (kind === "listing_avatar") {
       if (entityId) {
-        const { data: listing, error: fetchError } = await supabase
+        const mutationOwner = await resolveListingMutationOwner({
+          slug: entityId,
+          supabase: storageSupabase,
+          userId: user.id,
+        });
+
+        if (!mutationOwner) {
+          await removeStorageObject({
+            bucket: config.bucket,
+            path: fileName,
+            supabase: storageSupabase,
+          });
+          return jsonError("Listing not found", 404);
+        }
+
+        const { data: listing, error: fetchError } = await storageSupabase
           .from("listings")
           .select("id, avatar")
-          .eq("slug", entityId)
-          .eq("owner_id", user.id)
+          .eq("id", mutationOwner.listingId)
+          .eq("owner_id", mutationOwner.ownerId)
           .maybeSingle<ListingAvatarRecord>();
 
         if (fetchError) throw fetchError;
@@ -544,7 +560,7 @@ export async function POST(request: Request) {
             .from("listings")
             .update({ avatar: fileName })
             .eq("id", listing.id)
-            .eq("owner_id", user.id)
+            .eq("owner_id", mutationOwner.ownerId)
             .select("id")
             .maybeSingle<{ id: number }>();
 
@@ -568,10 +584,25 @@ export async function POST(request: Request) {
     }
 
     if (kind === "listing_photo" && entityId) {
+      const mutationOwner = await resolveListingMutationOwner({
+        slug: entityId,
+        supabase: storageSupabase,
+        userId: user.id,
+      });
+
+      if (!mutationOwner) {
+        await removeStorageObject({
+          bucket: config.bucket,
+          path: fileName,
+          supabase: storageSupabase,
+        });
+        return jsonError("Listing not found", 404);
+      }
+
       const { data: listing, error: updateError } = await storageSupabase
         .rpc("append_listing_photo", {
           p_listing_slug: entityId,
-          p_owner_id: user.id,
+          p_owner_id: mutationOwner.ownerId,
           p_photo: fileName,
         })
         .maybeSingle<ListingPhotoRecord>();
@@ -738,26 +769,34 @@ export async function DELETE(request: Request) {
           : jsonError("Media not found", 404);
       }
 
-      if (entityId) {
-        const { data: listing, error: fetchError } = await supabase
-          .from("listings")
-          .select("id, avatar")
-          .eq("slug", entityId)
-          .eq("owner_id", user.id)
-          .maybeSingle<ListingAvatarRecord>();
+      const mutationOwner = await resolveListingMutationOwner({
+        slug: entityId,
+        supabase: storageSupabase,
+        userId: user.id,
+      });
 
-        if (fetchError) throw fetchError;
+      if (!mutationOwner) {
+        return jsonError("Media not found", 404);
+      }
 
-        if (!listing || listing.avatar !== path) {
-          return jsonError("Media not found", 404);
-        }
+      const { data: listing, error: fetchError } = await storageSupabase
+        .from("listings")
+        .select("id, avatar")
+        .eq("id", mutationOwner.listingId)
+        .eq("owner_id", mutationOwner.ownerId)
+        .maybeSingle<ListingAvatarRecord>();
+
+      if (fetchError) throw fetchError;
+
+      if (!listing || listing.avatar !== path) {
+        return jsonError("Media not found", 404);
       }
 
       const { data: updatedListing, error: updateError } = await storageSupabase
         .from("listings")
         .update({ avatar: null })
-        .eq("slug", entityId)
-        .eq("owner_id", user.id)
+        .eq("id", mutationOwner.listingId)
+        .eq("owner_id", mutationOwner.ownerId)
         .eq("avatar", path)
         .select("id")
         .maybeSingle<{ id: number }>();
@@ -778,8 +817,8 @@ export async function DELETE(request: Request) {
         await storageSupabase
           .from("listings")
           .update({ avatar: path })
-          .eq("slug", entityId)
-          .eq("owner_id", user.id)
+          .eq("id", mutationOwner.listingId)
+          .eq("owner_id", mutationOwner.ownerId)
           .is("avatar", null);
         throw error;
       }
@@ -803,27 +842,35 @@ export async function DELETE(request: Request) {
           : jsonError("Media not found", 404);
       }
 
-      if (entityId) {
-        const { data: listing, error: fetchError } = await supabase
-          .from("listings")
-          .select("id, photos")
-          .eq("slug", entityId)
-          .eq("owner_id", user.id)
-          .maybeSingle<ListingPhotoRecord>();
+      const mutationOwner = await resolveListingMutationOwner({
+        slug: entityId,
+        supabase: storageSupabase,
+        userId: user.id,
+      });
 
-        if (fetchError) throw fetchError;
-
-        if (!listing || !(listing.photos ?? []).includes(path)) {
-          return jsonError("Media not found", 404);
-        }
-
-        originalPhotos = listing.photos ?? [];
+      if (!mutationOwner) {
+        return jsonError("Media not found", 404);
       }
+
+      const { data: listing, error: fetchError } = await storageSupabase
+        .from("listings")
+        .select("id, photos")
+        .eq("id", mutationOwner.listingId)
+        .eq("owner_id", mutationOwner.ownerId)
+        .maybeSingle<ListingPhotoRecord>();
+
+      if (fetchError) throw fetchError;
+
+      if (!listing || !(listing.photos ?? []).includes(path)) {
+        return jsonError("Media not found", 404);
+      }
+
+      originalPhotos = listing.photos ?? [];
 
       const { data: updatedListing, error: updateError } =
         await storageSupabase.rpc("remove_listing_photo", {
           p_listing_slug: entityId,
-          p_owner_id: user.id,
+          p_owner_id: mutationOwner.ownerId,
           p_photo: path,
         });
 
@@ -846,7 +893,7 @@ export async function DELETE(request: Request) {
             {
               p_expected_photos: updatedListing[0].photos ?? [],
               p_listing_slug: entityId,
-              p_owner_id: user.id,
+              p_owner_id: mutationOwner.ownerId,
               p_restore_photos: originalPhotos,
             }
           );

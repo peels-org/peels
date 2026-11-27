@@ -78,6 +78,7 @@ const ListingRead = memo(function Listing({
   const [existingThread, setExistingThread] = useState<ChatThreadRecord | null>(
     null
   );
+  const [isAdmin, setIsAdmin] = useState(false);
   // Chat drawer state is owned here so that each selected listing gets a
   // fresh drawer. The parent resets this by remounting with `key`.
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
@@ -110,6 +111,37 @@ const ListingRead = memo(function Listing({
   const listingId = realListing?.id;
   const listingOwnerId = realListing?.owner_id;
   const userId = user?.id;
+  useEffect(() => {
+    if (isDemo || !supabase || !userId) {
+      setIsAdmin(false);
+      return;
+    }
+
+    let isCurrentRequest = true;
+
+    async function loadAdminFlag() {
+      if (!supabase) return;
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", userId)
+        .maybeSingle<{ is_admin: boolean | null }>();
+
+      if (error) {
+        console.error("Error loading admin flag:", error);
+        return;
+      }
+
+      if (!isCurrentRequest) return;
+      setIsAdmin(profile?.is_admin === true);
+    }
+
+    loadAdminFlag();
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [isDemo, supabase, userId]);
+
   useEffect(() => {
     const listingSnapshot = realListing;
     if (
@@ -215,6 +247,7 @@ const ListingRead = memo(function Listing({
       <ListingChatDrawer
         isNested={presentation === "drawer"}
         user={user}
+        isAdmin={isAdmin}
         listing={realListing}
         isChatDrawerOpen={isChatDrawerOpen}
         setIsChatDrawerOpen={setIsChatDrawerOpen}

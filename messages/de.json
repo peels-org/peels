@@ -491,6 +491,7 @@
       "communityType": "ein Gemeinschaftsort",
       "signInForPhotos": "<link>Melde dich an</link>, um die Fotos dieses Gastgebers zu sehen.",
       "ownerNote": "Dies ist dein eigener Eintrag{stub, select, true {, als Stub markiert} other {}}. {visibility, select, true {Sieht gut aus!} other {Du hast ihn von der Karte ausgeblendet, daher kannst im Moment nur du ihn sehen.}}",
+      "adminNote": "Du bearbeitest diesen Eintrag als Peels-Admin.",
       "stubNote": "Dies ist ein Stub, der vom Peels-Team erstellt wurde. Prüfe die Angaben im Eintrag, bevor du vorbeischaust.",
       "stubMirroredNote": "Dieser Eintrag stammt aus offiziellen öffentlichen Daten. Öffnungszeiten und angenommene Materialien können sich ändern. Prüfe alles, bevor du vorbeischaust.",
       "stubClaim": "Bist du die Eigentümerin oder der Eigentümer? <link>Kontaktiere uns</link>, um diesen Eintrag zu beanspruchen oder Änderungen anzufordern.",

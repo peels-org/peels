@@ -15,6 +15,26 @@ export const metadata: Metadata = {
   title: "Edit Listing",
 };
 
+const listingEditSelect = `
+  id,
+  owner_id,
+  avatar,
+  name,
+  description,
+  coordinates,
+  country_code,
+  area_name,
+  accepted_items,
+  rejected_items,
+  photos,
+  links,
+  type,
+  slug,
+  is_stub,
+  visibility,
+  owner_has_multiple_non_residential_listings
+`;
+
 export default async function EditListingPage({
   params,
 }: EditListingPageProps) {
@@ -32,7 +52,7 @@ export default async function EditListingPage({
   const [
     t,
     { data: profile, error: profileError },
-    { data: listing, error: listingError },
+    { data: ownedListing, error: ownedListingError },
   ] = await Promise.all([
     getTranslations(),
     supabase
@@ -42,26 +62,7 @@ export default async function EditListingPage({
       .single(),
     supabase
       .from("listing_contact_cards")
-      .select(
-        `
-          id,
-          avatar,
-          name,
-          description,
-          coordinates,
-          country_code,
-          area_name,
-          accepted_items,
-          rejected_items,
-          photos,
-          links,
-          type,
-          slug,
-          is_stub,
-          visibility,
-          owner_has_multiple_non_residential_listings
-        `
-      )
+      .select(listingEditSelect)
       .eq("owner_id", user.id)
       .match({ slug })
       .maybeSingle(),
@@ -73,10 +74,28 @@ export default async function EditListingPage({
     );
   }
 
-  if (listingError) {
+  if (ownedListingError) {
     throw new Error(
-      `Failed to fetch listing for slug "${slug}" and user "${user.id}": ${listingError.message}`
+      `Failed to fetch listing for slug "${slug}" and user "${user.id}": ${ownedListingError.message}`
     );
+  }
+
+  let listing = ownedListing;
+
+  if (!listing && profile?.is_admin) {
+    const { data: adminListing, error: adminListingError } = await supabase
+      .from("listing_contact_cards")
+      .select(listingEditSelect)
+      .match({ slug })
+      .maybeSingle();
+
+    if (adminListingError) {
+      throw new Error(
+        `Failed to fetch listing for slug "${slug}" as admin "${user.id}": ${adminListingError.message}`
+      );
+    }
+
+    listing = adminListing;
   }
 
   if (!listing) {
